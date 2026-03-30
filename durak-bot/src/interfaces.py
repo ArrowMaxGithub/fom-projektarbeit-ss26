@@ -2,9 +2,6 @@ from action import ActionEvent
 from gamestate import Card, GameState
 
 
-def TurnCallback(gamestate: GameState): ...
-
-
 def ActionCallback(event: ActionEvent): ...
 
 
