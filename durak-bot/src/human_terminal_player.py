@@ -1,6 +1,6 @@
-from interfaces import ActionCallback, ActionEvent, Card, PlayerInterface
+from interfaces import Action, Card, PlayerInterface
 
-# TODO: Class inititialization, ActionCallback registration, read input from player and call registered ActionCallback
+# TODO: Class inititialization, read input from player and return chosen Action.
 
 
 # Example player defends:
@@ -16,6 +16,6 @@ from interfaces import ActionCallback, ActionEvent, Card, PlayerInterface
 
 
 class HumanTerminalPlayer(PlayerInterface):
-    def RegisterActionCallback(self, callback: ActionCallback): ...
-
-    def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]): ...
+    def OnTurn(
+        self, attacking_card: Card | None, legal_cards: list[Card]
+    ) -> Action: ...

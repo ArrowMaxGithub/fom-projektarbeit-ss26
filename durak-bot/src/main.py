@@ -13,11 +13,7 @@ def main():
     game = TwoPlayerGame()
     output = TerminalOutput()
 
-    game.RegisterOutputCallback(output.OnRender)
-    player.RegisterActionCallback(game.OnAction)
-    opponent.RegisterActionCallback(game.OnAction)
-
-    game.Start([player, opponent])
+    game.Start([player, opponent], output)
 
 
 if __name__ == "__main__":
