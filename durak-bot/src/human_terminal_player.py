@@ -1,4 +1,4 @@
-from interfaces import Action, ActionCallback, ActionEvent, Card, PlayerInterface
+from interfaces import ActionCallback, ActionEvent, Card, PlayerInterface
 
 # TODO: Class inititialization, ActionCallback registration, read input from player and call registered ActionCallback
 
@@ -18,4 +18,4 @@ from interfaces import Action, ActionCallback, ActionEvent, Card, PlayerInterfac
 class HumanTerminalPlayer(PlayerInterface):
     def RegisterActionCallback(self, callback: ActionCallback): ...
 
-    def OnTurn(self, last_action: ActionEvent, legal_cards: list[Card]): ...
+    def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]): ...

@@ -16,7 +16,9 @@ class PlayerInterface:
     def RegisterActionCallback(self, callback: ActionCallback): ...
 
     # The logic implementation for this player's turn.
-    def OnTurn(self, last_action: ActionEvent, legal_cards: list[Card]): ...
+    # If 'attacking_card' is None: Your turn to attack.
+    # Otherwise: You are defending against 'card'.
+    def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]): ...
 
 
 class GameInterface:
