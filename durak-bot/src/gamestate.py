@@ -1,15 +1,16 @@
-from enum import Enum
+from enum import IntEnum
 from typing import Self
+from dataclasses import dataclass
 
 
-class CardColor(Enum):
+class CardColor(IntEnum):
     SPADES = 0
     CLUBS = 1
     HEARTS = 2
     DIAMOND = 3
 
 
-class CardValue(Enum):
+class CardValue(IntEnum):
     SIX = 0
     SEVEN = 1
     EIGHT = 2
@@ -21,19 +22,32 @@ class CardValue(Enum):
     ACE = 8
 
 
+@dataclass
 class Card:
     value: CardValue
     color: CardColor
 
+    def __init__(self, value: CardValue, color: CardColor):
+        self.value = value
+        self.color = color
+
 
 class PlayerHand:
     cards: list[Card]
+
+    def __init__(self, cards: list[Card]):
+        self.cards = cards
 
 
 class Player:
     name: str
     is_human: bool
     hand: PlayerHand
+
+    def __init__(self, name: str, is_human: bool, hand: PlayerHand):
+        self.name = name
+        self.is_human = is_human
+        self.hand = hand
 
 
 # The only concrete data class which holds the entire game state and all player information.
