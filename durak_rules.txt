@@ -1,0 +1,44 @@
+Unsere Regeln für das Kartenspiel Durak
+
+Variante: Podkidnoy Durak
+Spieler: 2 (1 vs. 1) 
+Karten: 36, 6 bis Ass
+Ziel: Nach Leerziehen des Kartenstapels alle Handkarten loswerden / nicht der letzte Spieler mit Handkarten sein
+
+1. Spielbeginn
+- Das Kartendeck wird gemischt. Alle Spieler erhalten abwechselnd eine Karte, bis beide 6 Stück halten.
+- Danach wird eine weitere Karte gezogen und offen unter den Stapel gelegt. Die Farbe dieser Karte gilt als Trumpf. 
+- Nun sehen sich die Spieler ihre Karten an.
+- Bei der ersten Partie wird der Spieler mit dem niedrigsten Trumpf zum Angreifer und beginnt. Sonst beginnt der Gewinner der letzten Partie.
+
+2. Rundenablauf
+- Der Angreifer greift den Verteidiger mit einer beliebigen Karte an.
+- Daraufhin hat der Verteidiger zwei Möglichkeiten:
+A. er verteidigt sich gegen die gespielte Karte oder 
+B. er gibt auf und nimmt alle Karten derzeit auf dem Spielfeld auf seine Hand.
+
+Variante A: 
+- Der Verteidiger schlägt die gelegte Karte mit einer Karte höheren Ranges UND gleicher Farbe oder einer Trumpfkarte beliebigen Ranges.
+- Falls mit einer Trumpfkarte angegriffen wurden, muss entsprechend mit einer Trumpfkarte höheren Ranges geschlagen werden.
+- Der Angreifer darf daraufhin mit einer weiteren Karte angreifen, unter der Bedigung, dass der Wert dieser Karte bereits auf dem Spielfeld liegt.
+
+Der Angriff gilt als erfolgreich verteidigt, wenn 
+aa. maximal bis zu 6 Karten zum Angriff gelegt und jeweils geschlagen worden sind oder
+ab. der Verteidiger weniger als 6 Karten auf der Hand hatte und bis dahin alle Karten geschlagen hat
+
+Nun werden die gespielten Karten auf einen Ablagestapel gelegt und sind aus dem Spiel.
+Die Spieler ziehen solange vom Nachziehstapel auf, bis sie wieder 6 Karten auf der Hand haben, beginnend mit dem Angreifer.
+Eine neue Runde startet, wobei Angreifer und Verteidiger die Rollen wechseln.
+
+Variante B:
+- Der Verteidiger kann jederzeit alle Karte auf dem Spielfeld auf seine Hand nehmen.
+- Sobald er eine Karte nicht schlagen kann, muss er dies tun. 
+- Der Angriff gilt in beiden Fällen als nicht abgewehrt.
+- Der Angreifer darf dann, wenn noch legale Angriffskarten auf der Hand sind, diese nachwerfen. Der Verteidiger muss sie ebenfalls aufnehmen.
+- Die Spieler ziehen ggf. wieder auf 6 Karte auf, beginnend mit dem Angreifer.
+- Eine neue Runde startet, wobei die Rollen gleich bleiben.
+
+3. Spielende
+- Die Runden erfolgen analog bis die letzte Karte (Trumpf) aufgezogen wurde.
+- ggf. zieht ein Spieler dann keine Karte bzw. weniger als bis 6 Karten auf.
+- Der Spieler, der am Ende noch Karten in seiner Hand hat, verliert. / Der sie zuerst loswird, gewinnt.

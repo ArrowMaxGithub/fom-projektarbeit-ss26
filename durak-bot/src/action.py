@@ -1,12 +1,13 @@
-from gamestate import Card
+# action.py
+
 from dataclasses import dataclass
+from gamestate import Card
 
 
 @dataclass
 class Action:
     # Play a card as attacker/defender.
-    # If None: Pass
-    card: Card | None
-
-    def __init__(self, card: Card | None):
-        self.card = card
+    # If None:
+    # - attacker: pass / no more attack cards
+    # - defender: take cards
+    card: Card | None = None
