@@ -113,7 +113,7 @@ class GameState:
 
         # Startspieler: niedrigster Trumpf beginnt.
         self.attacker = self._find_first_attacker()
-        self.defender = 1 - self.attacker
+        self.defender = (self.attacker + 1) % player_count
 
         # Zu Beginn liegt noch nichts auf dem Tisch und der Ablagestapel ist leer.
         self.table = []
@@ -255,14 +255,6 @@ class GameState:
             if card.color == self.trump and attack_card.color != self.trump:
                 legal_cards.append(card)
                 continue
-
-            # Trumpf gegen Trumpf: nur höherer Trumpf schlägt.
-            if (
-                card.color == self.trump
-                and attack_card.color == self.trump
-                and card.value.value > attack_card.value.value
-            ):
-                legal_cards.append(card)
 
         return legal_cards
 
