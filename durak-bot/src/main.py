@@ -25,6 +25,7 @@ def play(
         typer.Argument(help="The name of the bot to play against."),
     ] = "bot-lowest-card",
     ui: Annotated[Ui, typer.Argument(help="Selected interface type.")] = "terminal",
+    slow: Annotated[bool, typer.Option(help="Step through program execution")] = False,
 ):
     """
     Play a two-player game against a selected bot.
@@ -39,7 +40,7 @@ def play(
 
     player = HumanTerminalPlayer()
     game = TwoPlayerGame()
-    game.Start([player, opponent], output)
+    game.Start([player, opponent], output, slow)
 
 
 @app.command()
