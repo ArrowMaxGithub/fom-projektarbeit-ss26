@@ -6,37 +6,32 @@ from interfaces import PlayerInterface
 
 
 class HumanTerminalPlayer(PlayerInterface):
-    def OnTurn(
-        self, attacking_card: Card | None, legal_cards: list[Card]
-    ) -> Action:
+    def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]) -> Action:
         if len(legal_cards) == 0:
             print("Dein Zug: [X: Passen / Aufnehmen]")
             input("> ")
             return Action(card=None)
 
-        print(
-            f"Dein Zug: [X: Passen, Karte spielen: 0-{len(legal_cards) - 1}]"
-        )
+        print(f"Dein Zug: [X: Passen, Karte spielen: 0-{len(legal_cards) - 1}]")
 
         self._print_cards_with_indexes(legal_cards)
 
-        while True:
-            choice = input("> ").strip()
+        choice = input("> ").strip()
 
-            if choice.lower() == "x":
-                return Action(card=None)
+        if choice.lower() == "x":
+            return Action(card=None)
 
-            if not choice.isdigit():
-                print("Ungültige Eingabe. Bitte X oder eine Zahl eingeben.")
-                continue
+        if not choice.isdigit():
+            print("Ungültige Eingabe. Bitte X oder eine Zahl eingeben.")
+            return Action(None)
 
-            index = int(choice)
+        index = int(choice)
 
-            if index < 0 or index >= len(legal_cards):
-                print("Ungültiger Kartenindex.")
-                continue
+        if index < 0 or index >= len(legal_cards):
+            print("Ungültiger Kartenindex.")
+            return Action(None)
 
-            return Action(card=legal_cards[index])
+        return Action(card=legal_cards[index])
 
     # ----------------------------
     # HILFSMETHODEN (AUSGABE)

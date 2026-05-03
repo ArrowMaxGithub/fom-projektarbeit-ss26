@@ -68,9 +68,8 @@ class TwoPlayerGame(GameInterface):
             self._play_attack_card(action.card)
             self.phase = "defend"
             return
-
-        # Tisch ist verteidigt. Angreifer darf nachlegen oder passen.
-        if self.gamestate.is_fully_defended():
+        # Tisch ist nicht leer. Angreifer kann Karten nachwerfen oder passen.
+        else:
             if action.card is None:
                 self._finish_defended_round()
                 self.phase = "attack"
@@ -79,8 +78,6 @@ class TwoPlayerGame(GameInterface):
             self._play_attack_card(action.card)
             self.phase = "defend"
             return
-
-        raise ValueError("Invalid attack state.")
 
     def _handle_defense(self, action: Action) -> None:
         # None = Verteidiger nimmt auf.
