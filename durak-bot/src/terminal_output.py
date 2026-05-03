@@ -5,6 +5,11 @@ from interfaces import OutputInterface
 
 from action import Action
 
+ATTACK_COLOR = "\033[38;5;1m"
+DEFENSE_COLOR = "\033[38;5;2m"
+INFO_COLOR = "\033[38;5;243m"
+GAMEOVER_COLOR = "\033[38;5;3m"
+
 
 class TerminalOutput(OutputInterface):
     def OnRender(self, gamestate: GameState):
@@ -27,47 +32,51 @@ class TerminalOutput(OutputInterface):
 
     def OnAttack(self, attacker: str, action: Action):
         if action.card:
-            print(f"{attacker} greift an mit {self._format_card(action.card)}")
+            print(
+                f"{ATTACK_COLOR}{attacker} greift an mit {self._format_card(action.card)}"
+            )
         else:
-            print(f"{attacker} stoppt seinen Angriff")
+            print(f"{ATTACK_COLOR}{attacker} stoppt seinen Angriff")
 
     def OnDefense(self, defender: str, action: Action):
         if action.card:
-            print(f"{defender} verteidigt mit {self._format_card(action.card)}")
+            print(
+                f"{DEFENSE_COLOR}{defender} verteidigt mit {self._format_card(action.card)}"
+            )
         else:
-            print(f"{defender} nimmt die Karten auf")
+            print(f"{DEFENSE_COLOR}{defender} nimmt die Karten auf")
 
     # ----------------------------
     # AUSGABE TEILE
     # ----------------------------
 
     def _print_separator(self) -> None:
-        print("----------------------------------------")
+        print(f"{INFO_COLOR}----------------------------------------")
 
     def _print_round(self, gamestate: GameState) -> None:
-        print(f"Runde: {gamestate.round}")
+        print(f"{INFO_COLOR}Runde: {gamestate.round}")
 
     def _print_trump(self, gamestate: GameState) -> None:
         if gamestate.trump is None:
             return
 
-        print(f"Trumpf: {self._format_color(gamestate.trump)}")
+        print(f"{INFO_COLOR}Trumpf: {self._format_color(gamestate.trump)}")
 
     def _print_draw_pile(self, gamestate: GameState) -> None:
-        print(f"Nachziehstapel: {len(gamestate.draw_pile)} Karten")
+        print(f"{INFO_COLOR}Nachziehstapel: {len(gamestate.draw_pile)} Karten")
 
     def _print_roles(self, gamestate: GameState) -> None:
         attacker = gamestate.players[gamestate.attacker]
         defender = gamestate.players[gamestate.defender]
 
-        print(f"Angreifer: {attacker.name}")
-        print(f"Verteidiger: {defender.name}")
+        print(f"{INFO_COLOR}Angreifer: {attacker.name}")
+        print(f"{INFO_COLOR}Verteidiger: {defender.name}")
 
     def _print_table(self, gamestate: GameState) -> None:
-        print("Tisch:")
+        print(f"{INFO_COLOR}Tisch:")
 
         if len(gamestate.table) == 0:
-            print("(leer)")
+            print(f"{INFO_COLOR}(leer)")
             return
 
         for pair in gamestate.table:
@@ -93,8 +102,8 @@ class TerminalOutput(OutputInterface):
         loser = gamestate.players[loser_index]
 
         print()
-        print(f"Spiel beendet! Gewinner: {winner.name}!")
-        print(f"{loser.name} ist der Durak!")
+        print(f"{GAMEOVER_COLOR}Spiel beendet! Gewinner: {winner.name}!")
+        print(f"{GAMEOVER_COLOR}{loser.name} ist der Durak!")
 
     # ----------------------------
     # FORMATIERUNG
