@@ -6,6 +6,10 @@ from interfaces import PlayerInterface
 
 
 class HumanTerminalPlayer(PlayerInterface):
+    def __init__(self):
+        self.name = input("Namen eingeben: ")
+        super().__init__()
+
     def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]) -> Action:
         if len(legal_cards) == 0:
             print("Dein Zug: [X: Passen / Aufnehmen]")
@@ -32,6 +36,9 @@ class HumanTerminalPlayer(PlayerInterface):
             return Action(None)
 
         return Action(card=legal_cards[index])
+
+    def GetName(self) -> str:
+        return self.name
 
     # ----------------------------
     # HILFSMETHODEN (AUSGABE)

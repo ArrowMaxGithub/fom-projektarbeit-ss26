@@ -14,6 +14,9 @@ class BotLowestCard(PlayerInterface):
 
         return Action(chosen_card)
 
+    def GetName(self) -> str:
+        return "Bot"
+
 
 def test():
     attacking_card = Card(CardValue.JACK, CardColor.CLUBS)

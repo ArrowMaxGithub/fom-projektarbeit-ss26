@@ -27,6 +27,10 @@ class TwoPlayerGame(GameInterface):
         self.gamestate = GameState()
         self.gamestate.setup(2)
 
+        for i, player in enumerate(players):
+            name = player.GetName()
+            self.gamestate.set_player_name(i, name)
+
         self.phase = "attack"
         self._render()
 
