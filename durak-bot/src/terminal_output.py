@@ -10,6 +10,7 @@ class TerminalOutput(OutputInterface):
     def OnRender(self, gamestate: GameState):
         print()
         self._print_separator()
+        self._print_round(gamestate)
         self._print_trump(gamestate)
         self._print_draw_pile(gamestate)
         print()
@@ -42,6 +43,9 @@ class TerminalOutput(OutputInterface):
 
     def _print_separator(self) -> None:
         print("----------------------------------------")
+
+    def _print_round(self, gamestate: GameState) -> None:
+        print(f"Runde: {gamestate.round}")
 
     def _print_trump(self, gamestate: GameState) -> None:
         if gamestate.trump is None:
