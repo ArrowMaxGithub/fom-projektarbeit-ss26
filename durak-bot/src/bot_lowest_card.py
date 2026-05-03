@@ -9,7 +9,7 @@ class BotLowestCard(PlayerInterface):
     def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]) -> Action:
         chosen_card = None
         for card in legal_cards:
-            if chosen_card is None or card.value < chosen_card.value:
+            if chosen_card is None or card.value.value < chosen_card.value.value:
                 chosen_card = card
 
         return Action(chosen_card)
@@ -22,15 +22,15 @@ def test():
     legal_cards = [
         Card(CardValue.QUEEN, CardColor.CLUBS),
         Card(CardValue.ACE, CardColor.CLUBS),
-        Card(CardValue.EIGHT, CardColor.DIAMOND),
-        Card(CardValue.TEN, CardColor.DIAMOND),
+        Card(CardValue.EIGHT, CardColor.DIAMONDS),
+        Card(CardValue.TEN, CardColor.DIAMONDS),
     ]
 
     bot = BotLowestCard()
     result = bot.OnTurn(attacking_card, legal_cards)
 
     # Card with the lowest CardValue, irrespective of trump color
-    expected = Action(Card(CardValue.EIGHT, CardColor.DIAMOND))
+    expected = Action(Card(CardValue.EIGHT, CardColor.DIAMONDS))
 
     assert result == expected
 
