@@ -122,6 +122,10 @@ class GameState:
         self.table = []
         self.discard_pile = []
 
+    def set_player_name(self, index: int, name: str):
+        if index < len(self.players):
+            self.players[index].name = name
+
     def _create_shuffled_deck(self) -> list[Card]:
         deck: list[Card] = []
         for color in CardColor:

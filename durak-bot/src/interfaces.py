@@ -10,6 +10,8 @@ class PlayerInterface:
         self, attacking_card: Card | None, legal_cards: list[Card]
     ) -> Action: ...
 
+    def GetName(self) -> str: ...
+
 
 class OutputInterface:
     # Render the current game state, e.g. as text on a terminal.
