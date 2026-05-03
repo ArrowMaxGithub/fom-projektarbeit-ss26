@@ -62,6 +62,9 @@ class TablePair:
 
 class GameState:
     def __init__(self):
+        # Rundenzähler, wird beim Nachziehen inkrementiert
+        self.round = 0
+
         # Trumpffarbe; vor setup() noch unbekannt.
         self.trump: CardColor | None = None
 
@@ -219,6 +222,8 @@ class GameState:
 
         # Wenn nur noch die offene Trumpfkarte übrig ist, kann sie normal gezogen werden.
         # Dieser Fall ist bereits durch pop() oben abgedeckt, sobald sie am Ende angekommen ist.
+
+        self.round += 1
 
     def swap_roles(self) -> None:
         self.attacker, self.defender = self.defender, self.attacker
