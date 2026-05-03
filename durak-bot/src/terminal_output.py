@@ -3,11 +3,13 @@
 from gamestate import GameState, Card
 from interfaces import OutputInterface
 
+from action import Action
+
 
 class TerminalOutput(OutputInterface):
     def OnRender(self, gamestate: GameState):
+        print()
         self._print_separator()
-
         self._print_trump(gamestate)
         self._print_draw_pile(gamestate)
         print()
@@ -21,6 +23,18 @@ class TerminalOutput(OutputInterface):
 
         self._print_separator()
         print()
+
+    def OnAttack(self, attacker: str, action: Action):
+        if action.card:
+            print(f"{attacker} greift an mit {self._format_card(action.card)}")
+        else:
+            print(f"{attacker} stoppt seinen Angriff")
+
+    def OnDefense(self, defender: str, action: Action):
+        if action.card:
+            print(f"{defender} verteidigt mit {self._format_card(action.card)}")
+        else:
+            print(f"{defender} nimmt die Karten auf")
 
     # ----------------------------
     # AUSGABE TEILE
