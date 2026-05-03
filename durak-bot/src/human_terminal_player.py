@@ -42,13 +42,13 @@ class HumanTerminalPlayer(PlayerInterface):
         print("                  " + self._format_indexes(cards))
 
     def _format_cards(self, cards: list[Card]) -> str:
-        return ", ".join(self._format_card(card) for card in cards)
+        return "|".join(f"{self._format_card(card):^6}" for card in cards)
 
     def _format_indexes(self, cards: list[Card]) -> str:
-        return ", ".join(f"[{i}]" for i in range(len(cards)))
+        return "|".join(f" {i:<5}" for i in range(len(cards)))
 
     def _format_card(self, card: Card) -> str:
-        return f"{self._format_color(card)} {self._format_value(card)}"
+        return f"{self._format_color(card)} {self._format_value(card):<2}"
 
     def _format_color(self, card: Card) -> str:
         match card.color.name:
@@ -66,12 +66,12 @@ class HumanTerminalPlayer(PlayerInterface):
     def _format_value(self, card: Card) -> str:
         match card.value.name:
             case "JACK":
-                return "B (11)"
+                return "B"
             case "QUEEN":
-                return "D (12)"
+                return "D"
             case "KING":
-                return "K (13)"
+                return "K"
             case "ACE":
-                return "A (14)"
+                return "A"
             case _:
                 return str(card.value.value)
