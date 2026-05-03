@@ -15,6 +15,12 @@ class OutputInterface:
     # Render the current game state, e.g. as text on a terminal.
     def OnRender(self, gamestate: GameState): ...
 
+    # Render attack card or stopped attack
+    def OnAttack(self, attacker: str, action: Action): ...
+
+    # Render defense card or defender pass
+    def OnDefense(self, defender: str, action: Action): ...
+
 
 class GameInterface:
     # Process action taken during a player turn.

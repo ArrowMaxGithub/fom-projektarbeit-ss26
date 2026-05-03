@@ -42,12 +42,18 @@ class TwoPlayerGame(GameInterface):
 
     def OnAction(self, action: Action):
         if self.phase == "attack":
+            attacker = self.gamestate.players[self.gamestate.attacker].name
+            self.output.OnAttack(attacker, action)
             self._handle_attack(action)
 
         elif self.phase == "defend":
+            defender = self.gamestate.players[self.gamestate.defender].name
+            self.output.OnDefense(defender, action)
             self._handle_defense(action)
 
         elif self.phase == "throw_in":
+            attacker = self.gamestate.players[self.gamestate.attacker].name
+            self.output.OnAttack(attacker, action)
             self._handle_throw_in(action)
 
         else:
