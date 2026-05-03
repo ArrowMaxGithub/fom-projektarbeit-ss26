@@ -17,7 +17,9 @@ class TwoPlayerGame(GameInterface):
         # "throw_in" -> Verteidiger nimmt auf, Angreifer darf nachwerfen
         self.phase = "attack"
 
-    def Start(self, players: list[PlayerInterface], output: OutputInterface):
+    def Start(
+        self, players: list[PlayerInterface], output: OutputInterface, slow: bool
+    ):
         if len(players) != 2:
             raise ValueError("TwoPlayerGame needs exactly 2 players.")
 
@@ -37,6 +39,8 @@ class TwoPlayerGame(GameInterface):
 
             action = active_player.OnTurn(attacking_card, legal_cards)
             self.OnAction(action)
+            if slow:
+                input("Warte auf Enter...\n")  # Wait for player stepping
 
         self._render()
 
