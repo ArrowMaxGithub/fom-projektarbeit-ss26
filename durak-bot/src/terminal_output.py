@@ -83,7 +83,7 @@ class TerminalOutput(OutputInterface):
     # ----------------------------
 
     def _format_card(self, card: Card) -> str:
-        return f"{self._format_color(card.color)} {self._format_value(card)}"
+        return f"{self._format_color(card.color)} {self._format_value(card):<2}"
 
     def _format_color(self, color) -> str:
         match color.name:
@@ -101,12 +101,12 @@ class TerminalOutput(OutputInterface):
     def _format_value(self, card: Card) -> str:
         match card.value.name:
             case "JACK":
-                return "B (11)"
+                return "B"
             case "QUEEN":
-                return "D (12)"
+                return "D"
             case "KING":
-                return "K (13)"
+                return "K"
             case "ACE":
-                return "A (14)"
+                return "A"
             case _:
                 return str(card.value.value)
