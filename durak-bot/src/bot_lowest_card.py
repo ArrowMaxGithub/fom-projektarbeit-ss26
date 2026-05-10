@@ -6,7 +6,12 @@ from gamestate import Card, CardColor, CardValue
 # Simple bot which plays the lowest legal card by its numerical value.
 # If there are no legal cards to play, it will pass.
 class BotLowestCard(PlayerInterface):
-    def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]) -> Action:
+    def OnTurn(
+        self,
+        attacking_card: Card | None,
+        hand_cards: list[Card],
+        legal_cards: list[Card],
+    ) -> Action:
         chosen_card = None
         for card in legal_cards:
             if chosen_card is None or card.value.value < chosen_card.value.value:
@@ -30,7 +35,7 @@ def test():
     ]
 
     bot = BotLowestCard()
-    result = bot.OnTurn(attacking_card, legal_cards)
+    result = bot.OnTurn(attacking_card, [], legal_cards)
 
     # Card with the lowest CardValue, irrespective of trump color
     expected = Action(Card(CardValue.EIGHT, CardColor.DIAMONDS))

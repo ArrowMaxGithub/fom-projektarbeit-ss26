@@ -15,6 +15,7 @@ class TerminalOutput(OutputInterface):
     def OnRender(self, gamestate: GameState):
         print()
         self._print_separator()
+        print(f"{INFO_COLOR}Aktuelles Spiel")
         self._print_round(gamestate)
         self._print_trump(gamestate)
         self._print_draw_pile(gamestate)
@@ -46,6 +47,12 @@ class TerminalOutput(OutputInterface):
         else:
             print(f"{DEFENSE_COLOR}{defender} nimmt die Karten auf")
 
+    def OnDrawCards(self, player_name: str, before: int, after: int):
+        print(f"{INFO_COLOR}Spielablauf: Karten aufgezogen")
+        print(
+            f"{INFO_COLOR}{player_name} hat von {before} auf {after} Karten aufgezogen"
+        )
+
     # ----------------------------
     # AUSGABE TEILE
     # ----------------------------
@@ -69,8 +76,12 @@ class TerminalOutput(OutputInterface):
         attacker = gamestate.players[gamestate.attacker]
         defender = gamestate.players[gamestate.defender]
 
-        print(f"{INFO_COLOR}Angreifer: {attacker.name}")
-        print(f"{INFO_COLOR}Verteidiger: {defender.name}")
+        print(
+            f"{INFO_COLOR}Angreifer: {attacker.name} ({len(attacker.hand.cards)} Karten)"
+        )
+        print(
+            f"{INFO_COLOR}Verteidiger: {defender.name} ({len(defender.hand.cards)} Karten)"
+        )
 
     def _print_table(self, gamestate: GameState) -> None:
         print(f"{INFO_COLOR}Tisch:")

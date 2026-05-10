@@ -12,17 +12,29 @@ class HumanTerminalPlayer(PlayerInterface):
         self.name = input("Namen eingeben: ")
         super().__init__()
 
-    def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]) -> Action:
+    def OnTurn(
+        self,
+        attacking_card: Card | None,
+        hand_cards: list[Card],
+        legal_cards: list[Card],
+    ) -> Action:
+        print(f"{COLOR}Deine Handkarten:")
+        self._print_cards_with_indexes(hand_cards)
+
+        print()
+
         if len(legal_cards) == 0:
+            print(f"{COLOR}Spielbare Karten: keine")
             print(f"{COLOR}Dein Zug: [X: Passen / Aufnehmen]")
             input(f"{COLOR}> ")
             return Action(card=None)
 
-        print(f"{COLOR}Dein Zug: [X: Passen, Karte spielen: 0-{len(legal_cards) - 1}]")
-
+        print(f"{COLOR}Spielbare Karten:")
         self._print_cards_with_indexes(legal_cards)
 
-        choice = input("> ").strip()
+        print(f"{COLOR}Dein Zug: [X: Passen, Karte spielen: 0-{len(legal_cards) - 1}]")
+
+        choice = input(f"{COLOR}> ").strip()
 
         if choice.lower() == "x":
             return Action(card=None)
@@ -47,8 +59,8 @@ class HumanTerminalPlayer(PlayerInterface):
     # ----------------------------
 
     def _print_cards_with_indexes(self, cards: list[Card]) -> None:
-        print(f"{COLOR}Spielbare Karten: " + self._format_cards(cards))
-        print(f"{COLOR}                  " + self._format_indexes(cards))
+        print(f"{COLOR}" + self._format_cards(cards))
+        print(f"{COLOR}" + self._format_indexes(cards))
 
     def _format_cards(self, cards: list[Card]) -> str:
         return "|".join(f"{self._format_card(card):^6}" for card in cards)

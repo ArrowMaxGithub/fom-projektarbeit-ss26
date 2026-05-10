@@ -7,7 +7,10 @@ class PlayerInterface:
     # If 'attacking_card' is None: Your turn to attack.
     # Otherwise: You are defending against 'card'.
     def OnTurn(
-        self, attacking_card: Card | None, legal_cards: list[Card]
+        self,
+        attacking_card: Card | None,
+        hand_cards: list[Card],
+        legal_cards: list[Card],
     ) -> Action: ...
 
     def GetName(self) -> str: ...
@@ -22,6 +25,9 @@ class OutputInterface:
 
     # Render defense card or defender pass
     def OnDefense(self, defender: str, action: Action): ...
+
+    # Render drawn cards after round end
+    def OnDrawCards(self, player_name: str, before: int, after: int): ...
 
 
 class GameInterface:
