@@ -1,8 +1,15 @@
 # gamestate.py
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, IntEnum
 import random
+
+
+class Phase(IntEnum):
+    Attack = 0
+    Defense = 1
+    ThrowIn = 2
+    Take = 3
 
 
 # Farben (Suits)
