@@ -1,6 +1,6 @@
 # gamestate_test.py
 
-from gamestate import GameState, Card, CardValue, CardColor
+from gamestate import GameState
 
 # TEST, OB ALLES FUNKTIONIERT:
 if __name__ == "__main__":
