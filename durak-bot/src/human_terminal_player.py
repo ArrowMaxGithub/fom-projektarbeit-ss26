@@ -1,7 +1,7 @@
 # human_terminal_player.py
 
 from action import Action
-from gamestate import Card
+from gamestate import Card, Phase, TablePair
 from interfaces import PlayerInterface
 
 COLOR = "\033[38;5;7m"
@@ -17,17 +17,24 @@ class HumanTerminalPlayer(PlayerInterface):
         attacking_card: Card | None,
         hand_cards: list[Card],
         legal_cards: list[Card],
+        phase: Phase,
+        table_pairs: list[TablePair],
+        discard_pile: list[Card],
+        draw_pile: int,
+        opponent_hand_size: int,
+        is_attacking: bool,
+        turn: int,
     ) -> Action:
-        print(f"{COLOR}Deine Handkarten: {len(hand_cards)}")
-        self._print_cards(hand_cards)
-
-        print()
-
         if len(legal_cards) == 0:
             print(f"{COLOR}Spielbare Karten: keine")
             print(f"{COLOR}Dein Zug: [X: Passen / Aufnehmen]")
             input(f"{COLOR}> ")
             return Action(card=None)
+
+        print(f"{COLOR}Deine Handkarten: {len(hand_cards)}")
+        self._print_cards(hand_cards)
+
+        print()
 
         print(f"{COLOR}Spielbare Karten:")
         self._print_cards_with_indexes(legal_cards)
