@@ -2,6 +2,12 @@ from action import Action
 from gamestate import Card, GameState, Phase, TablePair
 
 
+class AgentInterface:
+    def GetAction(self, obs_dict: dict) -> int: ...
+
+    def GetName(self) -> str: ...
+
+
 class PlayerInterface:
     # The logic implementation for this player's turn.
     # If 'attacking_card' is None: Your turn to attack.
