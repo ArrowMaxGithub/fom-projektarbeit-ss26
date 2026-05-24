@@ -1,7 +1,7 @@
 # two_player_game.py
 
 from action import Action
-from gamestate import GameState, Card
+from gamestate import GameState, Card, Phase
 from interfaces import GameInterface, OutputInterface, PlayerInterface
 
 
@@ -15,10 +15,13 @@ class TwoPlayerGame(GameInterface):
         # "attack"   -> Angreifer spielt Karte oder beendet Angriff
         # "defend"   -> Verteidiger schlägt oder nimmt auf
         # "throw_in" -> Verteidiger nimmt auf, Angreifer darf nachwerfen
-        self.phase = "attack"
+        self.phase = Phase.Attack
 
     def Start(
-        self, players: list[PlayerInterface], output: OutputInterface, slow: bool
+        self,
+        players: list[PlayerInterface],
+        output: OutputInterface,
+        slow: bool = False,
     ):
         if len(players) != 2:
             raise ValueError("TwoPlayerGame needs exactly 2 players.")
@@ -33,15 +36,37 @@ class TwoPlayerGame(GameInterface):
             name = player.GetName()
             self.gamestate.set_player_name(i, name)
 
-        self.phase = "attack"
+        self.phase = Phase.Attack
         self._render()
 
         while not self.gamestate.is_game_over():
-            active_player = self.players[self._active_player_index()]
+            active_index = self._active_player_index()
+            active_player = self.players[active_index]
             attacking_card = self._current_attacking_card()
+            hand_cards = self.gamestate.players[active_index].hand.cards.copy()
             legal_cards = self._legal_cards()
+            phase = Phase.Attack
+            table_pairs = self.gamestate.table.copy()
+            discard_pile = self.gamestate.discard_pile.copy()
+            draw_pile = len(self.gamestate.draw_pile)
+            opponent_hand_size = len(
+                self.gamestate.players[(active_index + 1) % 2].hand.cards
+            )
+            is_attacking = active_index == self.gamestate.attacker
+            turn = self.gamestate.round
 
-            action = active_player.OnTurn(attacking_card, legal_cards)
+            action = active_player.OnTurn(
+                attacking_card=attacking_card,
+                hand_cards=hand_cards,
+                legal_cards=legal_cards,
+                phase=phase,
+                table_pairs=table_pairs,
+                discard_pile=discard_pile,
+                draw_pile=draw_pile,
+                opponent_hand_size=opponent_hand_size,
+                is_attacking=is_attacking,
+                turn=turn,
+            )
             self.OnAction(action)
             if slow:
                 input("Warte auf Enter...\n")  # Wait for player stepping
@@ -49,23 +74,20 @@ class TwoPlayerGame(GameInterface):
         self._render()
 
     def OnAction(self, action: Action):
-        if self.phase == "attack":
+        if self.phase == Phase.Attack:
             attacker = self.gamestate.players[self.gamestate.attacker].name
             self.output.OnAttack(attacker, action)
             self._handle_attack(action)
 
-        elif self.phase == "defend":
+        elif self.phase == Phase.Defense:
             defender = self.gamestate.players[self.gamestate.defender].name
             self.output.OnDefense(defender, action)
             self._handle_defense(action)
 
-        elif self.phase == "throw_in":
+        elif self.phase == Phase.ThrowIn:
             attacker = self.gamestate.players[self.gamestate.attacker].name
             self.output.OnAttack(attacker, action)
             self._handle_throw_in(action)
-
-        else:
-            raise ValueError(f"Unknown phase: {self.phase}")
 
         self._render()
 
@@ -80,36 +102,36 @@ class TwoPlayerGame(GameInterface):
                 raise ValueError("Attacker must play a card to start the round.")
 
             self._play_attack_card(action.card)
-            self.phase = "defend"
+            self.phase = Phase.Defense
             return
         # Tisch ist nicht leer. Angreifer kann Karten nachwerfen oder passen.
         else:
             if action.card is None:
                 self._finish_defended_round()
-                self.phase = "attack"
+                self.phase = Phase.Attack
                 return
 
             self._play_attack_card(action.card)
-            self.phase = "defend"
+            self.phase = Phase.Defense
             return
 
     def _handle_defense(self, action: Action) -> None:
         # None = Verteidiger nimmt auf.
         if action.card is None:
-            self.phase = "throw_in"
+            self.phase = Phase.ThrowIn
             return
 
         self._play_defense_card(action.card)
 
         # Wenn alles verteidigt ist, darf Angreifer wieder nachlegen oder passen.
         if self.gamestate.is_fully_defended():
-            self.phase = "attack"
+            self.phase = Phase.Attack
 
     def _handle_throw_in(self, action: Action) -> None:
         # None = Angreifer wirft nichts mehr nach.
         if action.card is None:
             self._finish_taken_round()
-            self.phase = "attack"
+            self.phase = Phase.Attack
             return
 
         self._play_attack_card(action.card)
@@ -168,13 +190,13 @@ class TwoPlayerGame(GameInterface):
     # ----------------------------
 
     def _active_player_index(self) -> int:
-        if self.phase == "defend":
+        if self.phase == Phase.Defense:
             return self.gamestate.defender
 
         return self.gamestate.attacker
 
     def _current_attacking_card(self) -> Card | None:
-        if self.phase == "defend":
+        if self.phase == Phase.Defense:
             return self.gamestate.last_open_attack()
 
         return None
@@ -183,12 +205,12 @@ class TwoPlayerGame(GameInterface):
         active_index = self._active_player_index()
         hand = self.gamestate.players[active_index].hand.cards
 
-        if self.phase in ["attack", "throw_in"]:
+        if self.phase in [Phase.Attack, Phase.ThrowIn]:
             if not self.gamestate.can_add_more_attack_cards():
                 return []
             return self.gamestate.LegalAttackCards(hand)
 
-        if self.phase == "defend":
+        if self.phase == Phase.Defense:
             return self.gamestate.LegalDefenseCards(hand)
 
         return []

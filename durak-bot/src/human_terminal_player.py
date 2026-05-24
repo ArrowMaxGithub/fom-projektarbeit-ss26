@@ -1,7 +1,7 @@
 # human_terminal_player.py
 
 from action import Action
-from gamestate import Card
+from gamestate import Card, Phase, TablePair
 from interfaces import PlayerInterface
 
 COLOR = "\033[38;5;7m"
@@ -12,7 +12,19 @@ class HumanTerminalPlayer(PlayerInterface):
         self.name = input("Namen eingeben: ")
         super().__init__()
 
-    def OnTurn(self, attacking_card: Card | None, legal_cards: list[Card]) -> Action:
+    def OnTurn(
+        self,
+        attacking_card: Card | None,
+        hand_cards: list[Card],
+        legal_cards: list[Card],
+        phase: Phase,
+        table_pairs: list[TablePair],
+        discard_pile: list[Card],
+        draw_pile: int,
+        opponent_hand_size: int,
+        is_attacking: bool,
+        turn: int,
+    ) -> Action:
         if len(legal_cards) == 0:
             print(f"{COLOR}Dein Zug: [X: Passen / Aufnehmen]")
             input(f"{COLOR}> ")
