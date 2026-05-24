@@ -3,12 +3,25 @@
 from action import Action
 from interfaces import PlayerInterface, OutputInterface
 from two_player_game import TwoPlayerGame
+from gamestate import Card, Phase, TablePair
 
 # Langer basic Text-Output der Spieldaten als Test, ob alles klappt.
 
 
 class TestPlayer(PlayerInterface):
-    def OnTurn(self, attacking_card, hand_cards, legal_cards):
+    def OnTurn(
+        self,
+        attacking_card: Card | None,
+        hand_cards: list[Card],
+        legal_cards: list[Card],
+        phase: Phase,
+        table_pairs: list[TablePair],
+        discard_pile: list[Card],
+        draw_pile: int,
+        opponent_hand_size: int,
+        is_attacking: bool,
+        turn: int,
+    ) -> Action:
         # Wenn es legale Karten gibt, spiele einfach die erste.
         # Wenn nicht, gib None zurück.
         if legal_cards:
