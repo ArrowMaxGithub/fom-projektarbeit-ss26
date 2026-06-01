@@ -24,6 +24,7 @@ class HumanTerminalPlayer(PlayerInterface):
         opponent_hand_size: int,
         is_attacking: bool,
         turn: int,
+        trump: Card,
     ) -> Action:
         if len(legal_cards) == 0:
             print(f"{COLOR}Dein Zug: [X: Passen / Aufnehmen]")

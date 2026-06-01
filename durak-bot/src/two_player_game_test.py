@@ -21,6 +21,7 @@ class TestPlayer(PlayerInterface):
         opponent_hand_size: int,
         is_attacking: bool,
         turn: int,
+        trump: Card,
     ) -> Action:
         # Wenn es legale Karten gibt, spiele einfach die erste.
         # Wenn nicht, gib None zurück.

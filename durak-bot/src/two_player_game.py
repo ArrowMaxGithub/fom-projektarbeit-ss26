@@ -31,6 +31,7 @@ class TwoPlayerGame(GameInterface):
 
         self.gamestate = GameState()
         self.gamestate.setup(2)
+        trump = self.gamestate.draw_pile[0]
 
         for i, player in enumerate(players):
             name = player.GetName()
@@ -45,7 +46,7 @@ class TwoPlayerGame(GameInterface):
             attacking_card = self._current_attacking_card()
             hand_cards = self.gamestate.players[active_index].hand.cards.copy()
             legal_cards = self._legal_cards()
-            phase = Phase.Attack
+            phase = self.phase
             table_pairs = self.gamestate.table.copy()
             discard_pile = self.gamestate.discard_pile.copy()
             draw_pile = len(self.gamestate.draw_pile)
@@ -66,6 +67,7 @@ class TwoPlayerGame(GameInterface):
                 opponent_hand_size=opponent_hand_size,
                 is_attacking=is_attacking,
                 turn=turn,
+                trump=trump,
             )
             self.OnAction(action)
             if slow:

@@ -46,6 +46,7 @@ if __name__ == "__main__":
     opponent_hand_size = len(gamestate.players[1].hand.cards)
     is_attacking = True
     turn = 0
+    trump = gamestate.draw_pile[0]
 
     old_input = builtins.input
 
@@ -63,6 +64,7 @@ if __name__ == "__main__":
             opponent_hand_size=opponent_hand_size,
             is_attacking=is_attacking,
             turn=turn,
+            trump=trump,
         )
         print_action(action)
 
@@ -81,6 +83,7 @@ if __name__ == "__main__":
             opponent_hand_size=opponent_hand_size,
             is_attacking=is_attacking,
             turn=turn,
+            trump=trump,
         )
         print_action(action)
 

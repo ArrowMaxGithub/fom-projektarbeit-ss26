@@ -20,18 +20,13 @@ class Status(IntEnum):
 # Adapter for agents to be used in a standard Durak game
 # Keeps book about all known cards for the agent
 class AgentAdpater(PlayerInterface):
-    def __init__(self, trump: Card, agent: AgentInterface):
+    def __init__(self, agent: AgentInterface):
         self.num_cards = len(CardColor) * len(CardValue)
-        self.trump = trump
-        trump_index = self._get_index_from_card(self.trump)
         self.observations = np.zeros(self.num_cards + 7).astype(np.int8)
-        self.observations[trump_index] = Status.InDeck
         self.passing_action = self.num_cards
         self.agent = agent
         self.turn = -1
-        self.tracked_cards = {
-            trump
-        }  # Includes any played or shown card. Their status can be traced exactly based on public information alone.
+        self.tracked_cards = set()  # Includes any played or shown card. Their status can be traced exactly based on public information alone.
 
     def OnTurn(
         self,
@@ -45,9 +40,14 @@ class AgentAdpater(PlayerInterface):
         opponent_hand_size: int,
         is_attacking: bool,
         turn: int,
+        trump: Card,
     ) -> Action:
         table_map = {pair.attack: pair.defense for pair in table_pairs}
         table_defenses = [pair.defense for pair in table_pairs]
+
+        self.tracked_cards.add(trump)
+        trump_index = self._get_index_from_card(trump)
+        self.observations[trump_index] = Status.InDeck
 
         # Must play card on first move
         is_new_turn = self.turn != turn
@@ -78,7 +78,7 @@ class AgentAdpater(PlayerInterface):
                 status = Status.OpenAttack
             elif card in table_map and table_map[card] is not None:
                 status = Status.DefendedAttack
-            elif card == self.trump and draw_pile > 0:
+            elif card == trump and draw_pile > 0:
                 status = Status.InDeck
             else:
                 status = Status.OpponentCard
@@ -99,12 +99,13 @@ class AgentAdpater(PlayerInterface):
             Phase.ThrowIn: True,
             Phase.Defense: False,
         }
-        if phase_actor_is_attacker.get(phase) == is_attacking:
+        is_active = phase_actor_is_attacker.get(phase) == is_attacking
+        if is_active:
             indices = [self._get_index_from_card(card) for card in legal_cards]
             action_mask[indices] = 1
 
         # Set global observations
-        self.observations[self.num_cards + 0] = int(self.trump.color.value)
+        self.observations[self.num_cards + 0] = int(trump.color.value)
         self.observations[self.num_cards + 1] = int(phase.value)
         self.observations[self.num_cards + 2] = int(is_attacking)
         self.observations[self.num_cards + 3] = int(True)
@@ -131,7 +132,7 @@ class AgentAdpater(PlayerInterface):
                 Status.OpenAttack if is_attacking else Status.Defense
             )
 
-        return card
+        return Action(card=card)
 
     def GetName(self) -> str:
         return self.agent.GetName()

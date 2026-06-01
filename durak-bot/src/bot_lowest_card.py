@@ -18,6 +18,7 @@ class BotLowestCard(PlayerInterface):
         opponent_hand_size: int,
         is_attacking: bool,
         turn: int,
+        trump: Card,
     ) -> Action:
         chosen_card = None
         for card in legal_cards:
@@ -34,6 +35,7 @@ def test():
     attacking_card = Card(CardValue.JACK, CardColor.CLUBS)
 
     # Example with diamonds as trump
+    trump = Card(CardValue.ACE, CardColor.DIAMONDS)
     hand_cards = [
         Card(CardValue.QUEEN, CardColor.CLUBS),
         Card(CardValue.ACE, CardColor.CLUBS),
@@ -70,6 +72,7 @@ def test():
         opponent_hand_size=opponent_hand_size,
         is_attacking=is_attacking,
         turn=turn,
+        trump=trump,
     )
 
     # Card with the lowest CardValue, irrespective of trump color

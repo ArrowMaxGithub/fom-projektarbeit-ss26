@@ -24,6 +24,7 @@ class PlayerInterface:
         opponent_hand_size: int,
         is_attacking: bool,
         turn: int,
+        trump: Card,
     ) -> Action: ...
 
     def GetName(self) -> str: ...

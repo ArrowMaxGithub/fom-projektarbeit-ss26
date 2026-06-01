@@ -33,7 +33,7 @@ class CardValue(Enum):
 
 
 # Einzelne Karte
-@dataclass
+@dataclass(frozen=True)
 class Card:
     value: CardValue
     color: CardColor
