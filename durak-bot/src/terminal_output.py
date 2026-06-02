@@ -48,7 +48,6 @@ class TerminalOutput(OutputInterface):
             print(f"{DEFENSE_COLOR}{defender} nimmt die Karten auf")
 
     def OnDrawCards(self, player_name: str, before: int, after: int):
-        print(f"{INFO_COLOR}Spielablauf: Karten aufgezogen")
         print(
             f"{INFO_COLOR}{player_name} hat von {before} auf {after} Karten aufgezogen"
         )

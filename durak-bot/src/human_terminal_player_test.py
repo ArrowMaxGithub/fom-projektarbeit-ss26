@@ -34,24 +34,26 @@ if __name__ == "__main__":
     gamestate = GameState()
     gamestate.setup(2)
 
-    player = HumanTerminalPlayer()
-
-    attacker = gamestate.players[gamestate.attacker]
-    legal_cards = gamestate.LegalAttackCards(attacker.hand.cards)
-
     old_input = builtins.input
 
     try:
+        builtins.input = TestInput(["Testspieler"])
+        player = HumanTerminalPlayer()
+
+        attacker = gamestate.players[gamestate.attacker]
+        hand_cards = attacker.hand.cards
+        legal_cards = gamestate.LegalAttackCards(hand_cards)
+
         print("----- TEST: HUMAN TERMINAL PLAYER SPIELT KARTE -----")
         builtins.input = TestInput(["0"])
-        action = player.OnTurn(None, legal_cards)
+        action = player.OnTurn(None, hand_cards, legal_cards)
         print_action(action)
 
         print()
 
         print("----- TEST: HUMAN TERMINAL PLAYER PASST -----")
         builtins.input = TestInput(["x"])
-        action = player.OnTurn(None, legal_cards)
+        action = player.OnTurn(None, hand_cards, legal_cards)
         print_action(action)
 
     finally:

@@ -18,8 +18,8 @@ class HumanTerminalPlayer(PlayerInterface):
         hand_cards: list[Card],
         legal_cards: list[Card],
     ) -> Action:
-        print(f"{COLOR}Deine Handkarten:")
-        self._print_cards_with_indexes(hand_cards)
+        print(f"{COLOR}Deine Handkarten: {len(hand_cards)}")
+        self._print_cards(hand_cards)
 
         print()
 
@@ -57,6 +57,9 @@ class HumanTerminalPlayer(PlayerInterface):
     # ----------------------------
     # HILFSMETHODEN (AUSGABE)
     # ----------------------------
+
+    def _print_cards(self, cards: list[Card]) -> None:
+        print(f"{COLOR}" + self._format_cards(cards))
 
     def _print_cards_with_indexes(self, cards: list[Card]) -> None:
         print(f"{COLOR}" + self._format_cards(cards))
