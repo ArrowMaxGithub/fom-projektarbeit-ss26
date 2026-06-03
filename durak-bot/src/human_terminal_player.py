@@ -39,6 +39,8 @@ class HumanTerminalPlayer(PlayerInterface):
         print(f"{COLOR}Spielbare Karten:")
         self._print_cards_with_indexes(legal_cards)
 
+        print()
+
         print(f"{COLOR}Dein Zug: [X: Passen, Karte spielen: 0-{len(legal_cards) - 1}]")
 
         choice = input(f"{COLOR}> ").strip()
