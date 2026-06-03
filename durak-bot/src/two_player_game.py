@@ -40,8 +40,9 @@ class TwoPlayerGame(GameInterface):
             active_player = self.players[self._active_player_index()]
             attacking_card = self._current_attacking_card()
             legal_cards = self._legal_cards()
+            hand_cards = self.gamestate.players[self._active_player_index()].hand.cards
 
-            action = active_player.OnTurn(attacking_card, legal_cards)
+            action = active_player.OnTurn(attacking_card, hand_cards, legal_cards)
             self.OnAction(action)
             if slow:
                 input("Warte auf Enter...\n")  # Wait for player stepping
@@ -153,7 +154,7 @@ class TwoPlayerGame(GameInterface):
         # Verteidigung erfolgreich:
         # Karten weglegen, nachziehen, Rollen tauschen.
         self.gamestate.discard_table_cards()
-        self.gamestate.refill_hands()
+        self._refill_hands_with_output()
         self.gamestate.swap_roles()
 
     def _finish_taken_round(self) -> None:
@@ -161,11 +162,33 @@ class TwoPlayerGame(GameInterface):
         # Tischkarten auf Verteidigerhand, nachziehen, Rollen bleiben gleich.
         defender = self.gamestate.players[self.gamestate.defender]
         defender.hand.cards.extend(self.gamestate.collect_table_cards())
-        self.gamestate.refill_hands()
+        self._refill_hands_with_output()
 
     # ----------------------------
     # HILFSMETHODEN
     # ----------------------------
+
+    def _refill_hands_with_output(self) -> None:
+        before_counts: dict[int, int] = {}
+
+        order = [self.gamestate.attacker, self.gamestate.defender]
+
+        for player_index in order:
+            player = self.gamestate.players[player_index]
+            before_counts[player_index] = len(player.hand.cards)
+
+        self.gamestate.refill_hands()
+
+        if self.output is None:
+            return
+
+        for player_index in order:
+            player = self.gamestate.players[player_index]
+            before = before_counts[player_index]
+            after = len(player.hand.cards)
+
+            if after > before:
+                self.output.OnDrawCards(player.name, before, after)
 
     def _active_player_index(self) -> int:
         if self.phase == "defend":

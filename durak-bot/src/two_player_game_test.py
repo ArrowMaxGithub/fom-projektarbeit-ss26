@@ -8,12 +8,15 @@ from two_player_game import TwoPlayerGame
 
 
 class TestPlayer(PlayerInterface):
-    def OnTurn(self, attacking_card, legal_cards):
+    def OnTurn(self, attacking_card, hand_cards, legal_cards):
         # Wenn es legale Karten gibt, spiele einfach die erste.
         # Wenn nicht, gib None zurück.
         if legal_cards:
             return Action(card=legal_cards[0])
         return Action(card=None)
+
+    def GetName(self):
+        return "Testspieler"
 
 
 class TestOutput(OutputInterface):
@@ -42,6 +45,15 @@ class TestOutput(OutputInterface):
         print("Nachziehstapel:", len(gamestate.draw_pile))
         print("Ablagestapel:", len(gamestate.discard_pile))
         print()
+
+    def OnAttack(self, attacker, action):
+        print("Angriff:", attacker, action.card)
+
+    def OnDefense(self, defender, action):
+        print("Verteidigung:", defender, action.card)
+
+    def OnDrawCards(self, player_name, before, after):
+        print("Nachziehen:", player_name, before, "->", after)
 
 
 if __name__ == "__main__":
