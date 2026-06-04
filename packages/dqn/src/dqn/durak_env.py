@@ -1,0 +1,375 @@
+from enum import IntEnum
+
+import gymnasium as gym
+import numpy as np
+from durak.gamestate import Card, CardColor, CardValue, GameState
+from pettingzoo import ParallelEnv
+
+
+class Status(IntEnum):
+    Unknown = 0
+    MyCard = 1
+    OpponentCard = 2
+    OpenAttack = 3
+    DefendedAttack = 4
+    Defense = 5
+    InDeck = 6
+    Discarded = 7
+
+
+class Phase(IntEnum):
+    Attack = 0
+    Defense = 1
+    ThrowIn = 2
+    Take = 3
+
+
+class DurakEnv(ParallelEnv):
+    metadata = {"render_modes": [], "name": "durak_card_game_v0"}
+
+    def __init__(self):
+        self.gamestate = GameState()
+        self.gamestate.setup(2)
+        self.num_cards = len(CardColor) * len(CardValue)
+        self.possible_agents = [player.name for player in self.gamestate.players]
+        self.n_action_space = self.num_cards + 1
+        self.passing_action = self.num_cards
+        self.observation_spaces = {
+            agent: gym.spaces.Dict(
+                {
+                    "observations": gym.spaces.MultiDiscrete(
+                        [len(Status)] * self.num_cards  # All cards
+                        + [len(CardColor)]  # Trump color
+                        + [len(Phase)]  # Current phase
+                        + [2]  # Is attacker (0 or 1)
+                        + [2]  # Is active player (0 or 1)
+                        + [self.num_cards + 1]  # Own hand size (0..36)
+                        + [self.num_cards + 1]  # Opponent hand size (0..36)
+                        + [self.num_cards + 1]  # Draw pile size (0..36)
+                    ),
+                    "action_mask": gym.spaces.MultiBinary(self.num_cards + 1),
+                }
+            )
+            for agent in self.possible_agents
+        }
+        self.action_spaces = {
+            agent: gym.spaces.Discrete(self.num_cards + 1)
+            for agent in self.possible_agents
+        }
+
+    def reset(self, *, seed=None, options=None):
+        self.gamestate.setup(2)
+        self.agents = list(self.possible_agents)
+        self.trump_card = self.gamestate.draw_pile[0]
+        self.tracked_cards = {self.trump_card}
+        self.agent_selection = self.agents[self.gamestate._find_first_attacker()]
+        self.next_player = self.agent_selection
+        self.phase = Phase.Attack
+        self.rewards = {agent: 0 for agent in self.agents}
+        self.terminateds = {agent: False for agent in self.agents}
+        self.truncateds = {agent: False for agent in self.agents}
+        self.observations = {
+            agent: {
+                "observations": np.zeros(
+                    self.observation_spaces[agent]["observations"].shape[0],
+                    dtype=np.int8,
+                ),
+                "action_mask": np.zeros(
+                    self.observation_spaces[agent]["action_mask"].n, dtype=np.bool
+                ),
+            }
+            for agent in self.agents
+        }
+        self.infos = {agent: {} for agent in self.agents}
+        self._update_agents_data()
+
+        active = self.next_player
+        obs_out = {active: self.observations[active]}
+        info_out = {active: self.infos[active]}
+
+        return obs_out, info_out
+
+    def observation_space(self, agent):
+        return self.observation_spaces[agent]
+
+    def action_space(self, agent):
+        return self.action_spaces[agent]
+
+    def step(self, actions):
+        # ParallelEnvWrapper calls step once more after all agents are already dead
+        if len(self.agents) == 0:
+            return {}, {}, {}, {}, {}
+
+        self._clear_rewards()
+
+        for agent, action in actions.items():
+            if agent != self.agent_selection:
+                continue
+
+            match self.phase:
+                case Phase.Attack:
+                    self._handle_attack(action)
+                case Phase.Defense:
+                    self._handle_defense(action)
+                case Phase.ThrowIn:
+                    self._handle_throw_in(action)
+                case Phase.Take:
+                    self._handle_take()
+
+        return self._end_of_cycle()
+
+    def render(self):
+        pass
+
+    def close(self):
+        pass
+
+    def state(self):
+        return np.array([])
+
+    def _handle_attack(self, action):
+        attacker = self.gamestate.players[self.gamestate.attacker]
+        if action is None or action == self.passing_action:
+            self.next_player = self.agents[self.gamestate.defender]
+            self.phase = Phase.Attack
+            self.gamestate.discard_table_cards()
+            self.gamestate.refill_hands()
+            self.gamestate.swap_roles()
+            return
+
+        card = get_card_from_index(action)
+
+        assert card in attacker.hand.cards
+        assert card in self.gamestate.LegalAttackCards(attacker.hand.cards)
+
+        attacker.hand.cards.remove(card)
+        self.gamestate.add_attack_card(card)
+        self.tracked_cards.add(card)
+
+        self.next_player = self.agents[self.gamestate.defender]
+        self.phase = Phase.Defense
+
+    def _handle_throw_in(self, action):
+        attacker = self.gamestate.players[self.gamestate.attacker]
+        if action is None or action == self.passing_action:
+            self.next_player = self.agents[self.gamestate.defender]
+            self.phase = Phase.Take
+            return
+
+        card = get_card_from_index(action)
+
+        assert card in attacker.hand.cards
+        assert card in self.gamestate.LegalAttackCards(attacker.hand.cards)
+
+        attacker.hand.cards.remove(card)
+        self.gamestate.add_attack_card(card)
+        self.tracked_cards.add(card)
+
+        self.next_player = self.agents[self.gamestate.attacker]
+        self.phase = Phase.ThrowIn
+
+    def _handle_defense(self, action):
+        defender = self.gamestate.players[self.gamestate.defender]
+        if action is None or action == self.passing_action:
+            self.next_player = self.agents[self.gamestate.attacker]
+            self.phase = Phase.ThrowIn
+            return
+
+        card = get_card_from_index(action)
+
+        assert card in defender.hand.cards
+        assert card in self.gamestate.LegalDefenseCards(defender.hand.cards)
+
+        defender.hand.cards.remove(card)
+        self.gamestate.add_defense_card(card)
+        self.tracked_cards.add(card)
+
+        self.next_player = self.agents[self.gamestate.attacker]
+        self.phase = Phase.Attack
+
+    def _handle_take(self):
+        defender = self.gamestate.players[self.gamestate.defender]
+        to_take = self.gamestate.collect_table_cards()
+
+        defender.hand.cards.extend(to_take)
+
+        self.gamestate.refill_hands()
+
+        self.next_player = self.agents[self.gamestate.attacker]
+        self.phase = Phase.Attack
+
+    def _get_winner(self):
+        winner_index = self.gamestate.winner_index()
+        if winner_index is not None:
+            return self.possible_agents[winner_index]
+        else:
+            return None
+
+    def _end_of_cycle(self):
+        winner = self._get_winner()
+
+        if winner is not None:
+            winning_agent = winner
+            losing_agent = (
+                self.possible_agents[1]
+                if winner == self.possible_agents[0]
+                else self.possible_agents[0]
+            )
+
+            self.rewards[winning_agent] = 1
+            self.terminateds[winning_agent] = True
+
+            self.rewards[losing_agent] = -1
+            self.terminateds[losing_agent] = True
+
+        state = self._update_agents_data()
+
+        for agent in self.possible_agents:
+            if self.terminateds[agent] or self.truncateds[agent]:
+                self._remove_agent(agent)
+
+        self.agent_selection = self.next_player
+
+        return state
+
+    def _update_agents_data(self):
+        for pair in self.gamestate.table:
+            self.tracked_cards.add(pair.attack)
+            if pair.defense:
+                self.tracked_cards.add(pair.defense)
+
+        # Unzip in-play cards
+        pairs = self.gamestate.table
+        attacks = set([pair.attack for pair in pairs])
+        defenses = set([pair.defense for pair in pairs])
+        attack_pairs = {pair.attack: pair.defense for pair in pairs}
+
+        for i, agent in enumerate(self.agents):
+            self._update_agent_data(i, agent, attack_pairs, attacks, defenses)
+
+        active = self.next_player
+        obs_out = {active: self.observations[active]}
+        info_out = {active: self.infos[active]}
+        rew_out = {a: self.rewards[a] for a in self.agents}
+        term_out = {a: self.terminateds[a] for a in self.agents}
+        trunc_out = {a: self.truncateds[a] for a in self.agents}
+
+        if any(self.terminateds.values()):
+            obs_out = {a: self.observations[a] for a in self.agents}
+            info_out = {a: self.infos[a] for a in self.agents}
+
+        return obs_out, rew_out, term_out, trunc_out, info_out
+
+    def _update_agent_data(self, i, agent, attack_pairs, attacks, defenses):
+        cards = set(self.gamestate.players[i].hand.cards)
+        opponent_cards = set(self.gamestate.players[(i + 1) % 2].hand.cards)
+        obs = self.observations[agent]["observations"].copy()
+
+        obs[self.num_cards + 0] = int(self.trump_card.color.value)
+        obs[self.num_cards + 1] = int(self.phase.value)
+        obs[self.num_cards + 2] = int(i == self.gamestate.attacker)
+        obs[self.num_cards + 3] = int(agent == self.next_player)
+        obs[self.num_cards + 4] = len(self.gamestate.players[i].hand.cards)
+        obs[self.num_cards + 5] = len(self.gamestate.players[(i + 1) % 2].hand.cards)
+        obs[self.num_cards + 6] = len(self.gamestate.draw_pile)
+
+        # Set player hand cards - may yet contain untracked cards
+        indices = [get_index_from_card(card) for card in cards]
+        obs[indices] = Status.MyCard
+
+        # Set already shown cards
+        for card in self.tracked_cards:
+            index = get_index_from_card(card)
+            if card in opponent_cards:
+                obs[index] = Status.OpponentCard
+            elif card in cards:
+                obs[index] = Status.MyCard
+            elif card == self.trump_card:
+                obs[index] = Status.InDeck  # While the trump card is not drawn
+            elif card in attacks:
+                obs[index] = (
+                    Status.OpenAttack
+                    if attack_pairs[card] is None
+                    else Status.DefendedAttack
+                )
+            elif card in defenses:
+                obs[index] = Status.Defense
+            else:
+                obs[index] = Status.Discarded
+
+        # obs now contains all available card information for 'agent'
+        # The only unknown cards should be the cards in the deck and any card the opponent has not shown yet
+
+        # Get legal cards
+        if i == self.gamestate.attacker:
+            legal_cards = (
+                self.gamestate.LegalAttackCards(cards=cards)
+                if self.gamestate.can_add_more_attack_cards()
+                else []
+            )
+        else:
+            legal_cards = self.gamestate.LegalDefenseCards(cards=cards)
+
+        # Set action mask to legal cards
+        action_mask = np.zeros(self.num_cards + 1, dtype=np.bool)
+        indices = [get_index_from_card(card) for card in legal_cards]
+        action_mask[indices] = 1
+        action_mask[self.passing_action] = 1
+
+        # Must play a first attack card
+        if len(self.gamestate.table) == 0 and i == self.gamestate.attacker:
+            action_mask[self.passing_action] = 0
+
+        # If agent is not active: can only pass
+        if agent != self.next_player:
+            action_mask = np.zeros(self.num_cards + 1, dtype=np.bool)
+            action_mask[self.passing_action] = 1
+
+        self.observations[agent]["observations"] = obs
+        self.observations[agent]["action_mask"] = action_mask
+
+    def _remove_agent(self, agent):
+        self.agents.remove(agent)
+
+    def _clear_rewards(self):
+        for agent in self.agents:
+            self.rewards[agent] = 0
+
+
+def get_index_from_card(card: Card) -> int:
+    # [Spades[6..Ace], Clubs[6..Ace], Hearts[6..Ace], Diamonds[6..Ace]]
+    return (card.color.value) * len(CardValue) + (card.value.value - 6)
+
+
+def get_card_from_index(index: int) -> Card | None:
+    if index == 36:
+        return None
+
+    color = CardColor(index // len(CardValue))
+    value = CardValue(index % len(CardValue) + 6)
+    return Card(value=value, color=color)
+
+
+def get_legal_cards_from_obs_dict(obs_dict: dict) -> list[Card]:
+    obs = obs_dict["observations"]
+    mask = obs_dict["action_mask"]
+
+    cards = obs[:36]
+    my_cards = np.where(cards == Status.MyCard)
+    my_legal_cards = my_cards[mask]
+
+    return [get_card_from_index(index) for index in my_legal_cards]
+
+
+def get_game_info_from_obs_dict(obs_dict: dict) -> dict:
+    obs = obs_dict["observations"]
+
+    return {
+        "trump": CardColor(obs[36]),
+        "phase": Phase(obs[37]),
+        "is_attacker": bool(obs[38]),
+        "is_active_player": bool(obs[39]),
+        "own_hand_size": int(obs[40]),
+        "opponent_hand_size": int(obs[41]),
+        "draw_pile": int(obs[42]),
+    }
