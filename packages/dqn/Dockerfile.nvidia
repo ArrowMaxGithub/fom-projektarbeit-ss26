@@ -1,0 +1,14 @@
+FROM pytorch/pytorch:2.12.0-cuda13.2-cudnn9-runtime
+
+WORKDIR /dqn
+
+COPY docker_requirements.txt .
+
+# separate requirements without torch => image has torch already installed
+RUN pip install --break-system-packages -r docker_requirements.txt 
+
+COPY /src /src
+
+EXPOSE 8265
+
+CMD ["python", "src/dqn/main.py"]
