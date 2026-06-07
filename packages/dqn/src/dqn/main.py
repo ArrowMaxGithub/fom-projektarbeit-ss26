@@ -21,8 +21,8 @@ def main():
 
     experiment_name = f"selfplay_{datetime.now()}"
     params = {
-        "learning_rate": 2e-4,
-        "iterations": 512,
+        "learning_rate": 1e-4,
+        "iterations": 8192,
         "epsilon_schedule": "linear",
         "epsilon_decay": 0.67,
         "initial_epsilon": 1.0,
@@ -32,7 +32,7 @@ def main():
         "replay_buffer_capacity": 65536 * 32,
         "double_q": True,
         "train_batch_size": 2048,
-        "num_steps_sampled_before_learning_starts": 65536 * 4,
+        "num_steps_sampled_before_learning_starts": 65536 * 16,
         "target_network_update_freq": 4,
         "td_error_loss_fn": "huber",
         "n_step": 5,
@@ -47,7 +47,7 @@ def main():
         "self_play_capacity": 64,
         "self_play_interval": 64,
         "self_play_recency_bias": 0.25,
-        "self_play_confidence": 0.05,
+        "self_play_gate": 0.50,
     }
 
     opponents = {

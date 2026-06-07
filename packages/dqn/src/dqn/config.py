@@ -86,7 +86,7 @@ def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig
     train_callback = SelfPlayCallback(
         interval=params["self_play_interval"],
         warmup_iterations=params["warmup_iterations"],
-        self_play_confidence=params["self_play_confidence"],
+        self_play_gate=params["self_play_gate"],
         checkpoint_path=checkpoint_path,
         opponent_pool=opponent_pool,
     )
