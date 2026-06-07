@@ -44,7 +44,7 @@ class TwoPlayerGame(GameInterface):
             attacking_card = self._current_attacking_card()
             hand_cards = self.gamestate.players[active_index].hand.cards.copy()
             legal_cards = self._legal_cards()
-            phase = Phase.Attack
+            phase = self.phase
             table_pairs = self.gamestate.table.copy()
             discard_pile = self.gamestate.discard_pile.copy()
             draw_pile = len(self.gamestate.draw_pile)
