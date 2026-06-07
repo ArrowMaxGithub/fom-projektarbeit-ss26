@@ -12,6 +12,8 @@ from dqn.epsilon_decay import EpsilonDecay
 from dqn.interpolation_agent import InterpolationRLModule
 from dqn.random_agent import RandomMaskedRLModule
 from dqn.trump_fish_agent import TrumpFishRLModule
+from dqn.low_card_agent import LowCardRLModule
+from dqn.high_card_agent import HighCardRLModule
 
 
 def main():
@@ -53,6 +55,8 @@ def main():
         "random": RandomMaskedRLModule,
         "trump_fish": TrumpFishRLModule,
         "interpolation": InterpolationRLModule,
+        "low-card": LowCardRLModule,
+        "high_card": HighCardRLModule,
     }
 
     checkpoint_path = Path(f"./checkpoints/{experiment_name}").resolve()
