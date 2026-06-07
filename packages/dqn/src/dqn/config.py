@@ -11,7 +11,12 @@ from ray.rllib.env.wrappers.pettingzoo_env import ParallelPettingZooEnv
 from ray.tune.registry import register_env
 
 from dqn.durak_env import DurakEnv
-from dqn.self_play import OpponentPool, SelfPlayCallback, policy_mapping_fn_creator
+from dqn.self_play import (
+    OpponentPool,
+    SelfPlayCallback,
+    set_eval_opponent_mapping,
+    training_policy_mapping_fn_creator,
+)
 
 
 def env_creator(cfg=None):
@@ -38,6 +43,10 @@ def save_parameters(path, params):
 
 
 def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig:
+    assert params["eval_episodes"] % len(opponents.keys()) == 0, (
+        "eval_episodes must be divisible by baseline opponent count"
+    )
+
     params["distributed_batch_size"] = params["train_batch_size"] // (
         params["num_env_runners"] * params["num_envs_per_env_runner"]
     )
@@ -82,8 +91,7 @@ def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig
         opponent_pool=opponent_pool,
     )
 
-    train_policy_mapping_fn = policy_mapping_fn_creator(opponent_pool, False)
-    eval_policy_mapping_fn = policy_mapping_fn_creator(opponent_pool, True)
+    train_policy_mapping_fn = training_policy_mapping_fn_creator(opponent_pool)
 
     config = (
         DQNConfig()
@@ -134,7 +142,7 @@ def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig
         )
         .evaluation(
             evaluation_interval=params["eval_interval"],
-            evaluation_num_env_runners=params["num_eval_env_runners"],
+            evaluation_num_env_runners=opponent_pool.num_opponents(),
             evaluation_duration_unit="episodes",
             evaluation_duration=params["eval_episodes"],
             evaluation_config={"explore": False},
@@ -151,11 +159,9 @@ def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig
     algorithm = config.build_algo()
 
     # Override policies used during eval: Only static baselines
-    algorithm.eval_env_runner_group.foreach_env_runner(
-        lambda env_runner: env_runner.config.multi_agent(
-            policy_mapping_fn=eval_policy_mapping_fn,
-        ),
-        local_env_runner=True,
+    set_eval_opponent_mapping(
+        eval_env_runner_group=algorithm.eval_env_runner_group,
+        opponent_pool=opponent_pool,
     )
 
     return algorithm

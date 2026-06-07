@@ -7,11 +7,17 @@ from ray.rllib.core.rl_module.rl_module import RLModuleSpec
 
 
 class OpponentPool:
-    def __init__(self, capacity: int, recency_bias: float, opponents: list[str]):
+    def __init__(
+        self,
+        capacity: int,
+        recency_bias: float,
+        opponents: list[str],
+    ):
         self.buffer = [module_id for module_id in opponents]
         self.baseline_buffer = self.buffer.copy()
         self.capacity = capacity
         self.recency_bias = recency_bias
+
         print(f"Initialized opponent pool with {len(self.buffer)} opponents")
 
     def opponents(self) -> list[str]:
@@ -35,17 +41,33 @@ class OpponentPool:
 
         return np.random.choice(a=self.buffer, p=p)
 
-    def baseline_sample(self):
-        return np.random.choice(a=self.baseline_buffer)
+
+def eval_policy_mapping_fn_creator(opponent_id: str):
+    def policy_mapping_fn(aid, *args, **kwargs):
+        assert aid in ("Player 1", "Player 2"), f"Unexpected agent ID: {aid}"
+        return "dqn" if aid == "Player 1" else opponent_id
+
+    return policy_mapping_fn
 
 
-def policy_mapping_fn_creator(opponent_pool: OpponentPool, only_baseline: bool):
+def set_eval_opponent_mapping(eval_env_runner_group, opponent_pool: OpponentPool):
+    n = len(opponent_pool.baseline_buffer)
+    # Remote eval workers have worker_index 1..=N; local worker (0) doesn't sample.
+    eval_env_runner_group.foreach_env_runner(
+        lambda env_runner: env_runner.config.multi_agent(
+            policy_mapping_fn=eval_policy_mapping_fn_creator(
+                opponent_pool.baseline_buffer[(env_runner.worker_index - 1) % n]
+            ),
+        ),
+        local_env_runner=True,
+    )
+
+
+def training_policy_mapping_fn_creator(opponent_pool: OpponentPool):
     def policy_mapping_fn(aid, *args, **kwargs):
         assert aid in ("Player 1", "Player 2"), f"Unexpected agent ID: {aid}"
         if aid == "Player 1":
             return "dqn"
-        elif only_baseline:
-            return opponent_pool.baseline_sample()
         else:
             return opponent_pool.sample()
 
@@ -133,8 +155,7 @@ class SelfPlayCallback(RLlibCallback):
         self.opponent_pool.add(module_id=module_id)
 
         # Generate new polcy_mapping_fn to capture changes to opponent_pool
-        train_policy_mapping_fn = policy_mapping_fn_creator(self.opponent_pool, False)
-        eval_policy_mapping_fn = policy_mapping_fn_creator(self.opponent_pool, True)
+        train_policy_mapping_fn = training_policy_mapping_fn_creator(self.opponent_pool)
 
         # Add new version to algorithm
         local_worker = algorithm.env_runner
@@ -168,10 +189,4 @@ class SelfPlayCallback(RLlibCallback):
         algorithm.env_runner_group.sync_weights(policies=[module_id])
 
         # Propagate changes to eval_runners
-        algorithm.eval_env_runner_group.foreach_env_runner(
-            lambda env_runner: env_runner.config.multi_agent(
-                policy_mapping_fn=eval_policy_mapping_fn,
-            ),
-            local_env_runner=True,
-        )
         algorithm.eval_env_runner_group.sync_weights(policies=[module_id])
