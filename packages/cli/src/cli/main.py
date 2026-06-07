@@ -3,7 +3,6 @@ from enum import Enum
 from typing import Annotated
 
 from durak.adapter import AgentAdpater
-from durak.bot_lowest_card import BotLowestCard
 from durak.human_terminal_player import HumanTerminalPlayer
 from durak.terminal_output import TerminalOutput
 from durak.two_player_game import TwoPlayerGame
@@ -12,6 +11,8 @@ from dqn.interpolation_agent import InterpolationAgent
 from dqn.trump_fish_agent import TrumpFishAgent
 from dqn.dqn_agent import DQNAgent
 from dqn.random_agent import RandomAgent
+from dqn.low_card_agent import LowCardAgent
+from dqn.high_card_agent import HighCardAgent
 
 app = typer.Typer()
 
@@ -19,6 +20,7 @@ app = typer.Typer()
 class Bot(str, Enum):
     Random = "random"
     LowestCard = "lowest-card"
+    HighestCard = "highest-card"
     Interpolation = "interpolation"
     TrumpFish = "trump-fish"
     DQNv0 = "dqn-v0"
@@ -45,7 +47,10 @@ def play(
             opponent = AgentAdpater(RandomAgent())
 
         case Bot.LowestCard:
-            opponent = BotLowestCard()
+            opponent = AgentAdpater(LowCardAgent())
+
+        case Bot.HighestCard:
+            opponent = AgentAdpater(HighCardAgent())
 
         case Bot.Interpolation:
             opponent = AgentAdpater(InterpolationAgent())
@@ -74,4 +79,5 @@ def simulate():
 
 
 if __name__ == "__main__":
-    app()
+    play("lowest-card")
+    # app()
