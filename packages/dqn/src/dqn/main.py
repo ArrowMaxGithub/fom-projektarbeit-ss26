@@ -9,11 +9,11 @@ from tqdm import tqdm
 
 from dqn.config import dqn_config, save_parameters, set_epsilon
 from dqn.epsilon_decay import EpsilonDecay
+from dqn.high_card_agent import HighCardRLModule
 from dqn.interpolation_agent import InterpolationRLModule
+from dqn.low_card_agent import LowCardRLModule
 from dqn.random_agent import RandomMaskedRLModule
 from dqn.trump_fish_agent import TrumpFishRLModule
-from dqn.low_card_agent import LowCardRLModule
-from dqn.high_card_agent import HighCardRLModule
 
 
 def main():
@@ -42,7 +42,6 @@ def main():
         "tau": 0.005,
         "gamma": 0.99,
         "training_intensity": 1.0,
-        "num_eval_env_runners": 16,
         "eval_episodes": 1000,
         "eval_interval": 8,
         "self_play_capacity": 64,
