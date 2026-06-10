@@ -4,16 +4,20 @@ from datetime import datetime
 from pathlib import Path
 
 import torch
+from prettytable import PrettyTable
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from dqn.config import dqn_config, save_parameters, set_epsilon
+from dqn.crosstable import crosstable
+from dqn.dqn_agent import DQNAgent
+from dqn.durak_env import DurakEnv
 from dqn.epsilon_decay import EpsilonDecay
-from dqn.high_card_agent import HighCardRLModule
-from dqn.interpolation_agent import InterpolationRLModule
-from dqn.low_card_agent import LowCardRLModule
-from dqn.random_agent import RandomMaskedRLModule
-from dqn.trump_fish_agent import TrumpFishRLModule
+from dqn.high_card_agent import HighCardAgent
+from dqn.interpolation_agent import InterpolationAgent
+from dqn.low_card_agent import LowCardAgent
+from dqn.random_agent import RandomAgent
+from dqn.trump_fish_agent import TrumpFishAgent
 
 
 def main():
@@ -48,14 +52,15 @@ def main():
         "self_play_interval": 64,
         "self_play_recency_bias": 0.25,
         "self_play_gate": 0.50,
+        "crosstable_iterations": 100,
     }
 
     opponents = {
-        "random": RandomMaskedRLModule,
-        "trump_fish": TrumpFishRLModule,
-        "interpolation": InterpolationRLModule,
-        "low-card": LowCardRLModule,
-        "high_card": HighCardRLModule,
+        "random": RandomAgent(),
+        "trump_fish": TrumpFishAgent(),
+        "interpolation": InterpolationAgent(),
+        "low-card": LowCardAgent(),
+        "high_card": HighCardAgent(),
     }
 
     checkpoint_path = Path(f"./checkpoints/{experiment_name}").resolve()
@@ -85,6 +90,9 @@ def main():
             epsilon_decay=epsilon_decay,
             iterations=params["iterations"],
         )
+        checkpoint_agents = collect_checkpoints(checkpoint_path)
+        agents = checkpoint_agents + list(opponents.values())
+        evaluate(agents=agents, n_episodes=params["crosstable_iterations"])
 
     except KeyboardInterrupt:
         print("Exiting...")
@@ -145,6 +153,39 @@ def train(w, algorithm, epsilon_decay, iterations):
             pbar.set_description(
                 f"Training | Epsilon: {epsilon:.2f} Last eval: {(last_eval * 100.0):.1f}%"
             )
+
+
+def collect_checkpoints(path):
+    print(f"Collecting all checkpoint versions from {path}")
+    agents = []
+    for d in path.iterdir():
+        if not d.is_dir():
+            continue
+
+        name = d.name
+        path = d / "learner_group" / "learner" / "rl_module" / "dqn"
+        agent = DQNAgent(path=path)
+        agent.name = name
+        agents.append(agent)
+
+    return agents
+
+
+def evaluate(agents, n_episodes):
+    print(f"Starting evaluation crosstable with {len(agents)} agents")
+    results = crosstable(
+        env_factory=lambda: DurakEnv(), agents=agents, n_episodes=n_episodes
+    )
+    table = PrettyTable()
+    table.field_names = ["Matchups"] + [agent.GetName() for agent in agents]
+    for agent in agents:
+        res = [agent.GetName()] + [
+            f"{(results[agent.GetName()][opponent.GetName()][0] * 100):>5.2f}%"
+            for opponent in agents
+        ]
+        table.add_row(res)
+
+    print(table)
 
 
 def set_eval_interval(algorithm, value):

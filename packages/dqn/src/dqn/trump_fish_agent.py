@@ -24,6 +24,7 @@ class TrumpFishAgent(AgentInterface):
     def __init__(
         self,
     ):
+        self.module_class = TrumpFishRLModule
         self.module = TrumpFishRLModule()
 
     def GetName(self) -> str:

@@ -20,6 +20,7 @@ class HighCardAgent(AgentInterface):
     def __init__(
         self,
     ):
+        self.module_class = HighCardRLModule
         self.module = HighCardRLModule()
 
     def GetName(self) -> str:
