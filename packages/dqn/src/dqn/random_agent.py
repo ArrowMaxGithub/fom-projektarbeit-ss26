@@ -14,6 +14,7 @@ class RandomAgent(AgentInterface):
     def __init__(
         self,
     ):
+        self.module_class = RandomMaskedRLModule
         self.module = RandomMaskedRLModule()
 
     def GetName(self) -> str:

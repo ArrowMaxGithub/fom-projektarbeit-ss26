@@ -136,10 +136,11 @@ class DQNAgent(AgentInterface):
         )
         self.module = spec.build()
         self.module.restore_from_path(module_path)
+        self.name = "DQNAgent"
         assert isinstance(self.module, DQNMaskedRLModule), type(self.module)
 
     def GetName(self) -> str:
-        return "DQNAgent"
+        return self.name
 
     # Get agent action by forwarding the call to the RLModule
     def GetAction(self, obs_dict: dict) -> int:

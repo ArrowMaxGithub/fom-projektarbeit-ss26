@@ -915,6 +915,7 @@ dependencies = [
     { name = "cli" },
     { name = "dqn" },
     { name = "durak" },
+    { name = "prettytable" },
 ]
 
 [package.metadata]
@@ -922,6 +923,7 @@ requires-dist = [
     { name = "cli", editable = "packages/cli" },
     { name = "dqn", editable = "packages/dqn" },
     { name = "durak", editable = "packages/durak" },
+    { name = "prettytable", specifier = ">=3.17.0" },
 ]
 
 [[package]]

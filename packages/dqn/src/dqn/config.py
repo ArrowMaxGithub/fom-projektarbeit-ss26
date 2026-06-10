@@ -66,12 +66,12 @@ def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig
 
     rl_module_specs = {
         policy_id: RLModuleSpec(
-            module_class=module,
+            module_class=agent.module_class,
             inference_only=True,
             observation_space=tmp_env.observation_space,
             action_space=tmp_env.action_space,
         )
-        for policy_id, module in opponents.items()
+        for policy_id, agent in opponents.items()
     }
 
     rl_module_specs["dqn"] = RLModuleSpec(

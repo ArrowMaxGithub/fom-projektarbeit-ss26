@@ -8,6 +8,7 @@ dependencies = [
     "cli",
     "durak",
     "dqn",
+    "prettytable>=3.17.0",
 ]
 
 [tool.uv]

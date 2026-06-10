@@ -19,6 +19,7 @@ MAX_DRAW_PILE_SIZE = 24  # 36 Karten - 2 * 6 Starthandkarten
 
 class InterpolationAgent(AgentInterface):
     def __init__(self):
+        self.module_class = InterpolationRLModule
         self.module = InterpolationRLModule()
 
     def GetName(self) -> str:
