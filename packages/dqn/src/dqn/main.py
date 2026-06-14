@@ -52,7 +52,7 @@ def main():
         "self_play_interval": 64,
         "self_play_recency_bias": 0.25,
         "self_play_gate": 0.50,
-        "crosstable_iterations": 100,
+        "crosstable_iterations": 10000,
     }
 
     opponents = {
