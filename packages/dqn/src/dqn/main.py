@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+import ray
 import torch
 from prettytable import PrettyTable
 from torch.utils.tensorboard import SummaryWriter
@@ -23,6 +24,12 @@ from dqn.trump_fish_agent import TrumpFishAgent
 def main():
     print(f"GPU supported: {torch.cuda.is_available()}")
 
+    ray.init(
+        include_dashboard=True,
+        dashboard_host="0.0.0.0",
+        dashboard_port=8265,
+    )
+
     experiment_name = f"selfplay_{datetime.now()}"
     params = {
         "learning_rate": 1e-4,
@@ -39,7 +46,7 @@ def main():
         "num_steps_sampled_before_learning_starts": 65536 * 16,
         "target_network_update_freq": 4,
         "td_error_loss_fn": "huber",
-        "n_step": 5,
+        "n_step": 1,
         "adam_epsilon": 1e-3,
         "grad_clip": 4.0,
         "grad_clip_by": "global_norm",

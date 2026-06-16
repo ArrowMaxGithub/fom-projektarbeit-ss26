@@ -21,6 +21,8 @@ services:
       - PYTHONPATH=/dqn/src:/durak/src
       - CUDA_VISIBLE_DEVICES=0
     shm_size: '16gb'
+    cap_add:
+    - SYS_PTRACE
 
   amd-trainer:
     container_name: amd-trainer
@@ -44,6 +46,8 @@ services:
       - HIP_VISIBLE_DEVICES=0
       - ROCR_VISIBLE_DEVICES=0
     shm_size: '16gb'
+    cap_add:
+    - SYS_PTRACE
 
   tensorboard:
     container_name: tensorboard
