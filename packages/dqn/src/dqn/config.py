@@ -31,7 +31,9 @@ register_env(
 
 def set_epsilon(epsilon: float, algorithm) -> None:
     algorithm.env_runner_group.foreach_env_runner(
-        lambda w: w.module["dqn"].model_config.update({"epsilon": epsilon})
+        lambda w: w.module["dqn"].model_config.update({"epsilon": epsilon}),
+        healthy_only=True,
+        timeout_seconds=30,
     )
 
 
@@ -118,6 +120,7 @@ def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig
         .env_runners(
             num_env_runners=params["num_env_runners"],
             num_envs_per_env_runner=params["num_envs_per_env_runner"],
+            sample_timeout_s=120,
         )
         .training(
             replay_buffer_config={
@@ -146,6 +149,7 @@ def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig
             evaluation_duration_unit="episodes",
             evaluation_duration=params["eval_episodes"],
             evaluation_config={"explore": False},
+            evaluation_parallel_to_training=True,
         )
         .callbacks(
             on_train_result=lambda algorithm, metrics_logger, result: (
@@ -153,6 +157,15 @@ def dqn_config(params: dict, opponents: dict, checkpoint_path: str) -> DQNConfig
                     algorithm=algorithm, metrics_logger=metrics_logger, result=result
                 )
             )
+        )
+        .fault_tolerance(
+            restart_failed_env_runners=True,
+            restart_failed_sub_environments=True,
+            env_runner_health_probe_timeout_s=30.0,
+            env_runner_restore_timeout_s=180.0,
+            max_num_env_runner_restarts=1000,
+            num_consecutive_env_runner_failures_tolerance=100,
+            delay_between_env_runner_restarts_s=5.0,
         )
     )
 
