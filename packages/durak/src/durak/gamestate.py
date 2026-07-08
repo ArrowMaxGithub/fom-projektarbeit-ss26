@@ -142,7 +142,7 @@ class GameState:
 
     def _find_first_attacker(self) -> int:
         # Sucht pro Spieler den kleinsten Trumpf.
-        best_player_index = 0
+        best_player_index = None
         best_trump_value: int | None = None
 
         for i, player in enumerate(self.players):
@@ -152,8 +152,8 @@ class GameState:
                         best_trump_value = card.value.value
                         best_player_index = i
 
-        # Falls niemand Trumpf hat, startet Spieler 0.
-        return best_player_index
+        # Falls niemand Trumpf hat, startet zufälliger Spieler.
+        return best_player_index if best_player_index else random.randint(0, 1)
 
     # ----------------------------
     # HILFSFUNKTIONEN FÜR DEN TISCH
