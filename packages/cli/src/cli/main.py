@@ -24,7 +24,10 @@ class Bot(str, Enum):
     Interpolation = "interpolation"
     TrumpFish = "trump-fish"
     DQNv0 = "dqn-v0"
-
+    DQNv1 = "dqn-v1"
+    DQNv7 = "dqn-v7"
+    DQNv14 = "dqn-v14"
+    DQNfinal = "dqn-final"
 
 class Ui(str, Enum):
     Terminal = "terminal"
@@ -35,7 +38,7 @@ def play(
     bot: Annotated[
         Bot,
         typer.Argument(help="The name of the bot to play against."),
-    ] = "lowest-card",
+    ] = "dqn-final",
     ui: Annotated[Ui, typer.Argument(help="Selected interface type.")] = "terminal",
     slow: Annotated[bool, typer.Option(help="Step through program execution")] = False,
 ):
@@ -61,6 +64,18 @@ def play(
         case Bot.DQNv0:
             opponent = AgentAdpater(DQNAgent("agents/v0"))
 
+	case Bot.DQNv1:
+            opponent = AgentAdpater(DQNAgent("agents/v1"))
+
+	case Bot.DQNv7:
+            opponent = AgentAdpater(DQNAgent("agents/v7"))
+
+	case Bot.DQNv14:
+            opponent = AgentAdpater(DQNAgent("agents/v14"))
+
+	case Bot.DQNfinal:
+            opponent = AgentAdpater(DQNAgent("agents/final"))
+
     match ui:
         case Ui.Terminal:
             output = TerminalOutput()
@@ -79,5 +94,5 @@ def simulate():
 
 
 if __name__ == "__main__":
-    play("lowest-card")
+    play("dqn-final")
     # app()
