@@ -33,7 +33,7 @@ def main():
     experiment_name = f"selfplay_{datetime.now()}"
     params = {
         "learning_rate": 1e-4,
-        "iterations": 8192,
+        "iterations": 2048,
         "epsilon_schedule": "linear",
         "epsilon_decay": 0.67,
         "initial_epsilon": 1.0,
@@ -56,10 +56,10 @@ def main():
         "eval_episodes": 1000,
         "eval_interval": 8,
         "self_play_capacity": 64,
-        "self_play_interval": 64,
+        "self_play_interval": 128,
         "self_play_recency_bias": 0.25,
         "self_play_gate": 0.50,
-        "crosstable_iterations": 100,
+        "crosstable_iterations": 10000,
     }
 
     opponents = {
