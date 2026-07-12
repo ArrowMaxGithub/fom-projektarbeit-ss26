@@ -64,16 +64,16 @@ def play(
         case Bot.DQNv0:
             opponent = AgentAdpater(DQNAgent("agents/v0"))
 
-	case Bot.DQNv1:
+    	case Bot.DQNv1:
             opponent = AgentAdpater(DQNAgent("agents/v1"))
 
-	case Bot.DQNv7:
+    	case Bot.DQNv7:
             opponent = AgentAdpater(DQNAgent("agents/v7"))
 
-	case Bot.DQNv14:
+	    case Bot.DQNv14:
             opponent = AgentAdpater(DQNAgent("agents/v14"))
 
-	case Bot.DQNfinal:
+	    case Bot.DQNfinal:
             opponent = AgentAdpater(DQNAgent("agents/final"))
 
     match ui:
