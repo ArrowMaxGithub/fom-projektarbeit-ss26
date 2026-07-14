@@ -94,5 +94,5 @@ def simulate():
 
 
 if __name__ == "__main__":
-    play("dqn-final")
-    # app()
+    #play("dqn-final")
+    app()
