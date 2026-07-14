@@ -29,6 +29,7 @@ class Bot(str, Enum):
     DQNv14 = "dqn-v14"
     DQNfinal = "dqn-final"
 
+
 class Ui(str, Enum):
     Terminal = "terminal"
 
@@ -64,16 +65,16 @@ def play(
         case Bot.DQNv0:
             opponent = AgentAdpater(DQNAgent("agents/v0"))
 
-    	case Bot.DQNv1:
+        case Bot.DQNv1:
             opponent = AgentAdpater(DQNAgent("agents/v1"))
 
-    	case Bot.DQNv7:
+        case Bot.DQNv7:
             opponent = AgentAdpater(DQNAgent("agents/v7"))
 
-	    case Bot.DQNv14:
+        case Bot.DQNv14:
             opponent = AgentAdpater(DQNAgent("agents/v14"))
 
-	    case Bot.DQNfinal:
+        case Bot.DQNfinal:
             opponent = AgentAdpater(DQNAgent("agents/final"))
 
     match ui:
@@ -94,5 +95,5 @@ def simulate():
 
 
 if __name__ == "__main__":
-    #play("dqn-final")
+    # play("dqn-final")
     app()
