@@ -1,20 +1,26 @@
-# Project structure
-The project is managed by [UV](https://docs.astral.sh/uv/getting-started/installation/), and organized in three packages:
+# Projektstruktur
+Das Projekt wird mit [UV](https://docs.astral.sh/uv/getting-started/installation/) verwaltet und ist in drei Pakete gegliedert:
 
-1. durak: Python implementation of a two-player Durak game
-2. cli: Terminal-based human vs. agent game
-3. dqn: DQN-Trainer based on [Ray RLLib](https://docs.ray.io/en/latest/rllib/index.html) and deployed as a Docker container.
+1. durak: Python-Implementierung eines Durak-Spiels für zwei Spieler
+2. cli: Terminalbasiertes Spiel Mensch gegen Agent
+3. dqn: DQN-Trainer auf Basis von [Ray RLLib](https://docs.ray.io/en/latest/rllib/index.html), bereitgestellt als Docker-Container.
 
 
-# CLI usage
-A game may be started by providing one of the following IDs as option to the `play` subcommand:
+# CLI-Verwendung
+Ein Spiel kann gestartet werden, indem einer der folgenden Bot-Namen an den Unterbefehl `play` übergeben wird:
 
-1. Random: `random`
-2. Lowest card first: `lowest-card`
-3. Low cards early, high cards later: `interpolation`
-4. Fish for trump cards: `trump-fish`
-5. DQN version 0: `dqn-v0`
+1. Zufällig: `random`
+2. Niedrigste Karte zuerst: `lowest-card`
+3. Niedrige Karten früh, hohe Karten später: `interpolation`
+4. Nach Trumpfkarten fischen: `trump-fish`
+5. DQN Version 0: `dqn-v0`
+6. DQN Version 1: `dqn-v1`
+7. DQN Version 7: `dqn-v7`
+8. DQN Version 14: `dqn-v14`
+9. DQN Version Final: `dqn-final`
 
-Example game vs. DQN version 0: `uv run game play dqn-v0`
+Beispiel gegen DQN Version 14: `uv run game play dqn-v14`
 
-See all available options by providing `--help`.
+Dieselbe Bot-Auswahl kann an den Unterbefehl `simulate` übergeben werden, um N Spiele zwischen zwei Bots auszutragen: `uv run game simulate lowest-card dqn-final`
+
+Alle verfügbaren Optionen werden mit `--help` angezeigt.

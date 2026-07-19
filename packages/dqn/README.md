@@ -1,38 +1,34 @@
-# Q-learning and Double-Deep-Q-Networks for 2-Player-Durak
+# Double-Deep-Q-Networks Trainer für 2-Spieler-Durak
 
-Training and testing parameters are set in main.py
+Die Trainings- und Testparameter werden in main.py festgelegt
 
-To start the container:
+Der Container wird gestartet via:
 
 AMD:
 ```
-sudo docker compose up -d tensorboard 
+sudo docker compose up -d tensorboard
 sudo docker compose run --rm amd-trainer
 ```
 
 Nvidia:
 ```
-sudo docker compose up -d tensorboard 
+sudo docker compose up -d tensorboard
 sudo docker compose run --rm nvidia-trainer
 ```
 
-## Q-Learning:
-
-Manual CPU implementation based on dynamically growing Q-Value-Tables
-
 ## Double-Deep-Q-Networks:
 
-Implementation basen on the reference implementation by [Ray](https://github.com/ray-project/ray/tree/master/rllib/algorithms/dqn)
+Implementierung auf Basis der Referenzimplementierung von [Ray](https://github.com/ray-project/ray/tree/master/rllib/algorithms/dqn)
 
-Action masking implemented as custom TorchRLModule
+Action-Masking implementiert als benutzerdefiniertes TorchRLModule
 
-GPU-accelerated via PyTorch
+GPU-beschleunigt über PyTorch
 
-## Environment:
+## Umgebung:
 
-Parallel PettingZoo environment
+Parallele PettingZoo-Umgebung
 
-Perfect public knowledge tracking for played cards:
+Perfekte Nachverfolgung des öffentlichen Wissens über gespielte Karten:
 
 ```python
 class Status(IntEnum):
@@ -46,34 +42,34 @@ class Status(IntEnum):
     Discarded = 7
 ```
 
-Observation space:
+Beobachtungsraum:
 
 ```python
 gym.spaces.Dict(
-    {
-        "observations": gym.spaces.MultiDiscrete(
-            [len(Status)] * self.num_cards  # All cards
-            + [len(CardColor)]  # Trump color
-            + [len(Phase)]  # Current phase
-            + [2]  # Is attacker (0 or 1)
-            + [2]  # Is active player (0 or 1)
-            + [self.num_cards + 1]  # Own hand size (0..36)
-            + [self.num_cards + 1]  # Opponent hand size (0..36)
-            + [self.num_cards + 1]  # Draw pile size (0..36)
-        ),
-        "action_mask": gym.spaces.MultiBinary(self.num_cards + 1), # 36 cards + pass action
-    }
+{
+"observations": gym.spaces.MultiDiscrete(
+[len(Status)] * self.num_cards  # Alle Karten
++ [len(CardColor)]  # Trumpffarbe
++ [len(Phase)]  # Aktuelle Phase
++ [2]  # Ist Angreifer (0 oder 1)
++ [2]  # Ist aktiver Spieler (0 oder 1)
++ [self.num_cards + 1]  # Eigene Handgröße (0..36)
++ [self.num_cards + 1]  # Handgröße des Gegners (0..36)
++ [self.num_cards + 1]  # Größe des Nachziehstapels (0..36)
+),
+"action_mask": gym.spaces.MultiBinary(self.num_cards + 1), # 36 Karten + Pass-Aktion
+}
 )
 ```
 
-Action space:
+Aktionsraum:
 
 ```python
 gym.spaces.Discrete(self.num_cards + 1) # Pass == 36
 ```
 
-## Results (WIP):
+## Ergebnisse:
 
-DDQN vs. uniformly random opponent:
+DDQN Episodenrewards gegen gleichverteilt zufälligen Gegner:
 
 <img src="./mean_reward.svg">
