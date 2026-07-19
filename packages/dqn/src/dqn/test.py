@@ -8,7 +8,7 @@ def test(
     agent: AgentInterface,
     opponent: AgentInterface,
     n_episodes: int,
-) -> (float, float, float):
+) -> (float, float):
     env = env_factory()
 
     wins = 0

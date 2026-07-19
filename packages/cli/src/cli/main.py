@@ -13,6 +13,9 @@ from dqn.dqn_agent import DQNAgent
 from dqn.random_agent import RandomAgent
 from dqn.low_card_agent import LowCardAgent
 from dqn.high_card_agent import HighCardAgent
+from dqn.test import test
+from dqn.durak_env import DurakEnv
+from dqn.interfaces import AgentInterface
 
 app = typer.Typer()
 
@@ -46,36 +49,7 @@ def play(
     """
     Play a two-player game against a selected bot.
     """
-    match bot:
-        case Bot.Random:
-            opponent = AgentAdpater(RandomAgent())
-
-        case Bot.LowestCard:
-            opponent = AgentAdpater(LowCardAgent())
-
-        case Bot.HighestCard:
-            opponent = AgentAdpater(HighCardAgent())
-
-        case Bot.Interpolation:
-            opponent = AgentAdpater(InterpolationAgent())
-
-        case Bot.TrumpFish:
-            opponent = AgentAdpater(TrumpFishAgent())
-
-        case Bot.DQNv0:
-            opponent = AgentAdpater(DQNAgent("agents/v0"))
-
-        case Bot.DQNv1:
-            opponent = AgentAdpater(DQNAgent("agents/v1"))
-
-        case Bot.DQNv7:
-            opponent = AgentAdpater(DQNAgent("agents/v7"))
-
-        case Bot.DQNv14:
-            opponent = AgentAdpater(DQNAgent("agents/v14"))
-
-        case Bot.DQNfinal:
-            opponent = AgentAdpater(DQNAgent("agents/final"))
+    opponent = AgentAdpater(__match_bot(bot))
 
     match ui:
         case Ui.Terminal:
@@ -87,13 +61,76 @@ def play(
 
 
 @app.command()
-def simulate():
+def simulate(
+    bot: Annotated[
+        Bot,
+        typer.Argument(help="The name of the bot to play against."),
+    ] = "lowest-card",
+    opponent: Annotated[
+        Bot,
+        typer.Argument(help="The name of the bot to play against."),
+    ] = "dqn-final",
+    episodes: Annotated[
+        int,
+        typer.Argument(help="N games to be played"),
+    ] = 1000,
+):
     """
     Simulate X number of games between two bots.
     """
-    ...
+
+    bot = __match_bot(bot)
+    opponent = __match_bot(opponent)
+
+    (wins, losses) = test(
+        lambda: DurakEnv(),
+        bot,
+        opponent,
+        episodes,
+    )
+
+    wins *= 100
+    losses *= 100
+
+    print(
+        f"{bot.GetName()} vs {opponent.GetName()}: {wins:4.2f}% won | {losses:4.2f}% lost"
+    )
+
+
+def __match_bot(agent) -> AgentInterface:
+    match agent:
+        case Bot.Random:
+            agent = RandomAgent()
+
+        case Bot.LowestCard:
+            agent = LowCardAgent()
+
+        case Bot.HighestCard:
+            agent = HighCardAgent()
+
+        case Bot.Interpolation:
+            agent = InterpolationAgent()
+
+        case Bot.TrumpFish:
+            agent = TrumpFishAgent()
+
+        case Bot.DQNv0:
+            agent = DQNAgent("agents/v0")
+
+        case Bot.DQNv1:
+            agent = DQNAgent("agents/v1")
+
+        case Bot.DQNv7:
+            agent = DQNAgent("agents/v7")
+
+        case Bot.DQNv14:
+            agent = DQNAgent("agents/v14")
+
+        case Bot.DQNfinal:
+            agent = DQNAgent("agents/final")
+
+    return agent
 
 
 if __name__ == "__main__":
-    # play("dqn-final")
     app()
